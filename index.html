@@ -8,12 +8,14 @@
   <meta name="theme-color" content="#6b21a8">
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- SheetJS para leer Excel (.xlsx, .xls, .csv) -->
+  <!-- SheetJS para leer archivos de Excel (.xlsx, .xls) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <!-- JSZip para descarga en .ZIP -->
+  <!-- JSZip para descargar imágenes en .ZIP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <!-- jsPDF para pliego PDF 9x13cm -->
+  <!-- jsPDF para pliego PDF 9x13 cm -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Fuente infantil -->
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
   <style>
@@ -28,8 +30,13 @@
       <span class="text-3xl">🪪</span>
       <div>
         <h1 class="text-xl font-bold leading-none">Generador de Escarapelas Transición 2027</h1>
-        <p class="text-xs text-purple-200">I.E. San Francisco de Sales | compukelc</p>
+        <p class="text-xs text-purple-200">I.E. San Francisco de Sales | Desarrollado por compukelc</p>
       </div>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="abrirModalBD()" class="bg-purple-950 hover:bg-black text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+        🗄️ Base de Datos (Opcional)
+      </button>
     </div>
   </header>
 
@@ -37,11 +44,11 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
-      <!-- PASO 1: SUBIR IMÁGENES DE LAS CARÁTULAS -->
+      <!-- PASO 1: SUBIR LAS IMÁGENES DE LAS CARÁTULAS -->
       <section class="lg:col-span-7 bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
         <div>
-          <h2 class="text-lg font-bold text-purple-800">Paso 1: Sube tus carátulas por motivo</h2>
-          <p class="text-xs text-slate-500">Sube las imágenes en formato vertical (9x13 cm). Si solo subes una, se aplicará a todo.</p>
+          <h2 class="text-lg font-bold text-purple-800">Paso 1: Sube la(s) imagen(es) de la carátula</h2>
+          <p class="text-xs text-slate-500">Sube las imágenes verticales (9x13 cm). Si subes una sola, se aplicará por defecto.</p>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
@@ -81,21 +88,28 @@
           </label>
         </div>
 
-        <!-- Calibración del Texto -->
+        <!-- Calibración y Opciones del Texto -->
         <div class="bg-slate-50 p-3 rounded-xl border space-y-3 text-xs">
           <div class="flex justify-between items-center">
             <span class="font-bold text-purple-900 text-sm">🎯 Calibración del Nombre:</span>
-            <span class="text-slate-500">El nombre se centra limpiamente en la caja blanca</span>
+            <label class="flex items-center gap-1.5 cursor-pointer font-semibold text-slate-700 bg-white px-2 py-1 rounded border">
+              <input type="checkbox" id="checkTaparLinea" checked onchange="regenerarGaleria()" class="rounded text-purple-600">
+              <span>Borrar "NOMBRE: ___" y centrar</span>
+            </label>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
               <span class="font-bold block">Altura (Y): <span id="lblY">620</span>px</span>
               <input type="range" id="sliderY" min="450" max="850" value="620" oninput="regenerarGaleria()" class="w-full accent-purple-600">
             </div>
             <div>
+              <span class="font-bold block">Posición (X): <span id="lblX">150</span>px</span>
+              <input type="range" id="sliderX" min="100" max="600" value="150" oninput="regenerarGaleria()" class="w-full accent-purple-600">
+            </div>
+            <div>
               <span class="font-bold block mb-1">Tamaño Letra:</span>
-              <input type="number" id="inputFontSize" value="44" min="20" max="85" oninput="regenerarGaleria()" class="w-full border rounded px-2 py-1 bg-white">
+              <input type="number" id="inputFontSize" value="40" min="20" max="85" oninput="regenerarGaleria()" class="w-full border rounded px-2 py-1 bg-white">
             </div>
             <div>
               <span class="font-bold block mb-1">Color Letra:</span>
@@ -105,7 +119,7 @@
         </div>
       </section>
 
-      <!-- PASO 2: SUBIR EXCEL Y CONFIGURAR REPARTO DE MOTIVOS -->
+      <!-- PASO 2: SUBIR EXCEL Y CONFIGURACIÓN DE COLORES -->
       <section class="lg:col-span-5 bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between space-y-4">
         <div class="space-y-3">
           <div class="flex justify-between items-start">
@@ -118,16 +132,16 @@
             </button>
           </div>
 
-          <!-- Selector de Modo de Asignación de Color -->
+          <!-- Selector de Modo de Asignación de Colores -->
           <div class="bg-purple-50 p-3 rounded-xl border border-purple-200 space-y-2 text-xs">
-            <span class="font-bold text-purple-900 block">🎨 ¿Cómo deseas aplicar los colores a los niños?</span>
+            <span class="font-bold text-purple-900 block">🎨 ¿Cómo deseas aplicar los colores?</span>
             <select id="selectModoAsignacion" onchange="cambiarModoAsignacion()" class="w-full border rounded p-1.5 bg-white font-bold text-purple-900">
-              <option value="todos_uno">Aplicar UN SOLO color a TODOS los niños de la lista</option>
-              <option value="rotativo_personalizado">Combinar solo los colores que yo elija</option>
-              <option value="excel">Usar la columna del Excel para cada niño</option>
+              <option value="todos_uno">Aplicar UN SOLO color a TODOS los niños</option>
+              <option value="interpolar">Interpolar / Combinar los colores seleccionados</option>
+              <option value="rotativo">Una de cada color (Rotativo completo)</option>
             </select>
 
-            <!-- Selector si elige un solo color para todos -->
+            <!-- Selector de Color Único -->
             <div id="contenedorUnicoColor" class="pt-1">
               <span class="font-semibold text-slate-700">Selecciona el color único:</span>
               <select id="colorUnico" onchange="aplicarModoAsignacion()" class="w-full border rounded p-1 bg-white mt-1 font-bold">
@@ -139,9 +153,9 @@
               </select>
             </div>
 
-            <!-- Selector si elige combinar solo algunos colores -->
-            <div id="contenedorCombinacion" class="pt-1 hidden">
-              <span class="font-semibold text-slate-700 block mb-1">Selecciona qué colores quieres alternar:</span>
+            <!-- Selector para Interpolar / Combinar -->
+            <div id="contenedorInterpolar" class="pt-1 hidden">
+              <span class="font-semibold text-slate-700 block mb-1">Selecciona cuáles colores deseas combinar:</span>
               <div class="flex flex-wrap gap-2 text-[11px] font-bold">
                 <label class="bg-white px-2 py-1 rounded border"><input type="checkbox" name="chkMotivo" value="rojo" checked onchange="aplicarModoAsignacion()"> Rojo</label>
                 <label class="bg-white px-2 py-1 rounded border"><input type="checkbox" name="chkMotivo" value="amarillo" checked onchange="aplicarModoAsignacion()"> Amarillo</label>
@@ -159,10 +173,10 @@
           </label>
         </div>
 
-        <!-- Botones de Descarga -->
+        <!-- Botones de Descarga Masiva -->
         <div class="space-y-2 pt-2 border-t">
           <div class="flex justify-between items-center text-xs text-slate-600 mb-1">
-            <span>Total alumnos: <b id="contadorAlumnos" class="text-purple-800 text-sm">0</b></span>
+            <span>Total niños cargados: <b id="contadorAlumnos" class="text-purple-800 text-sm">0</b></span>
             <button onclick="limpiarLista()" class="text-red-500 hover:underline">Vaciar lista</button>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -170,7 +184,7 @@
               📦 Descargar .ZIP (Imágenes)
             </button>
             <button onclick="descargarTodoEnPDF()" class="bg-purple-700 hover:bg-purple-800 text-white font-bold py-2.5 px-3 rounded-xl text-xs shadow flex items-center justify-center gap-1">
-              🖨️ Descargar Pliego PDF
+              🖨️ Descargar Pliego PDF (Oficio)
             </button>
           </div>
         </div>
@@ -178,25 +192,52 @@
 
     </div>
 
-    <!-- PASO 3: GALERÍA DE RESULTADOS -->
+    <!-- PASO 3: GALERÍA DE CARÁTULAS GENERADAS -->
     <section class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-      <h2 class="text-lg font-bold text-purple-800 mb-1">Paso 3: Vista previa individual por estudiante</h2>
-      <p class="text-xs text-slate-500 mb-4">Puedes cambiar el color de cualquier estudiante de forma individual si lo requieres antes de descargar.</p>
+      <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
+        <div>
+          <h2 class="text-lg font-bold text-purple-800">Paso 3: Carátulas Generadas Individualmente</h2>
+          <p class="text-xs text-slate-500">Puedes cambiar el color de cualquier estudiante individualmente antes de descargar.</p>
+        </div>
+      </div>
 
       <div id="galeriaCaratulas" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
     </section>
 
   </main>
 
+  <!-- MODAL DE BASE DE DATOS -->
+  <div id="modalBD" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-xl max-w-md w-full p-5 space-y-4">
+      <h3 class="text-lg font-bold text-purple-800">Respaldo en Base de Datos (Opcional)</h3>
+      <p class="text-xs text-slate-600">El programa funciona 100% directo con tu archivo de Excel.</p>
+      <div class="space-y-2 text-xs">
+        <label class="font-bold block">URL de Supabase:</label>
+        <input type="text" id="supaUrl" placeholder="https://xyz.supabase.co" class="w-full border p-2 rounded">
+        <label class="font-bold block">Anon Key de Supabase:</label>
+        <input type="password" id="supaKey" placeholder="eyJhbGciOiJIUzI1NiIsInR..." class="w-full border p-2 rounded">
+      </div>
+      <div class="flex justify-between items-center pt-2">
+        <button onclick="cargarDesdeSupabase()" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold">🔄 Traer de BD</button>
+        <div class="flex gap-2">
+          <button onclick="cerrarModalBD()" class="px-3 py-1.5 bg-slate-200 rounded-lg text-xs">Cerrar</button>
+          <button onclick="guardarConfigBD()" class="px-3 py-1.5 bg-purple-700 text-white font-bold rounded-lg text-xs">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const MOTIVOS_DISPONIBLES = ['lila', 'amarillo', 'verde', 'rojo', 'azul'];
-    let plantillas = JSON.parse(localStorage.getItem('escarapelas_plantillas_v4')) || {};
-    let alumnos = JSON.parse(localStorage.getItem('escarapelas_alumnos_v4')) || [
-      { id: 1, nombre: 'MARIANA LAGUADO', motivo: 'rojo' },
+    const MOTIVOS = ['lila', 'amarillo', 'verde', 'rojo', 'azul'];
+    let plantillas = JSON.parse(localStorage.getItem('escarapelas_plantillas_v5')) || {};
+    let alumnos = JSON.parse(localStorage.getItem('escarapelas_alumnos_v5')) || [
+      { id: 1, nombre: 'MARIANA LAGUADO CÁCERES', motivo: 'rojo' },
       { id: 2, nombre: 'KELMER ANDREY', motivo: 'rojo' }
     ];
+    let supabaseClient = null;
 
     window.onload = () => {
+      inicializarBD();
       actualizarMiniaturasPlantillas();
       cambiarModoAsignacion();
       regenerarGaleria();
@@ -212,7 +253,7 @@
       reader.onload = function(e) {
         plantillas[motivo] = e.target.result;
         try {
-          localStorage.setItem('escarapelas_plantillas_v4', JSON.stringify(plantillas));
+          localStorage.setItem('escarapelas_plantillas_v5', JSON.stringify(plantillas));
         } catch (err) {}
         actualizarMiniaturasPlantillas();
         regenerarGaleria();
@@ -221,7 +262,7 @@
     }
 
     function actualizarMiniaturasPlantillas() {
-      MOTIVOS_DISPONIBLES.forEach(m => {
+      MOTIVOS.forEach(m => {
         const imgEl = document.getElementById('thumb_' + m);
         const stEl = document.getElementById('status_' + m);
         if (plantillas[m]) {
@@ -232,9 +273,9 @@
       });
     }
 
-    function obtenerPlantilla(motivo) {
-      if (plantillas[motivo]) return plantillas[motivo];
-      for (const m of MOTIVOS_DISPONIBLES) {
+    function obtenerPlantillaDisponible(motivoPreferido) {
+      if (plantillas[motivoPreferido]) return plantillas[motivoPreferido];
+      for (const m of MOTIVOS) {
         if (plantillas[m]) return plantillas[m];
       }
       return null;
@@ -243,7 +284,7 @@
     function cambiarModoAsignacion() {
       const modo = document.getElementById('selectModoAsignacion').value;
       document.getElementById('contenedorUnicoColor').classList.toggle('hidden', modo !== 'todos_uno');
-      document.getElementById('contenedorCombinacion').classList.toggle('hidden', modo !== 'rotativo_personalizado');
+      document.getElementById('contenedorInterpolar').classList.toggle('hidden', modo !== 'interpolar');
       aplicarModoAsignacion();
     }
 
@@ -254,15 +295,20 @@
       if (modo === 'todos_uno') {
         const colorUnico = document.getElementById('colorUnico').value;
         alumnos.forEach(al => al.motivo = colorUnico);
-      } else if (modo === 'rotativo_personalizado') {
+      } else if (modo === 'interpolar') {
         const checkboxes = document.querySelectorAll('input[name="chkMotivo"]:checked');
         const seleccionados = Array.from(checkboxes).map(cb => cb.value);
         if (seleccionados.length === 0) return;
         alumnos.forEach((al, idx) => {
           al.motivo = seleccionados[idx % seleccionados.length];
         });
+      } else if (modo === 'rotativo') {
+        alumnos.forEach((al, idx) => {
+          al.motivo = MOTIVOS[idx % MOTIVOS.length];
+        });
       }
-      guardarYActualizar();
+      guardarListaLocalYRemota();
+      regenerarGaleria();
     }
 
     function procesarArchivoExcel(event) {
@@ -279,16 +325,13 @@
         const nuevosAlumnos = [];
         filas.forEach((fila, idx) => {
           if (!fila || fila.length === 0) return;
-          const nombre = String(fila[0] || '').trim();
-          if (!nombre || (idx === 0 && /^(nombre|estudiante|alumno|niño|nombres)$/i.test(nombre))) return;
-
-          let motivoFila = String(fila[1] || '').trim().toLowerCase();
-          if (!MOTIVOS_DISPONIBLES.includes(motivoFila)) motivoFila = 'rojo';
+          const textoCelda = String(fila[0] || '').trim();
+          if (!textoCelda || (idx === 0 && /^(nombre|estudiante|alumno|niño|nombres)$/i.test(textoCelda))) return;
 
           nuevosAlumnos.push({
             id: Date.now() + idx,
-            nombre: nombre,
-            motivo: motivoFila
+            nombre: textoCelda,
+            motivo: 'rojo'
           });
         });
 
@@ -306,61 +349,93 @@
 
     function descargarPlantillaExcel() {
       const ws = XLSX.utils.aoa_to_sheet([
-        ["NOMBRE DEL ESTUDIANTE", "COLOR (Opcional)"],
-        ["MARIANA LAGUADO CÁCERES", "rojo"],
-        ["KELMER ANDREY LAGUADO", "rojo"]
+        ["NOMBRE DEL ESTUDIANTE"],
+        ["MARIANA LAGUADO CÁCERES"],
+        ["KELMER ANDREY LAGUADO"],
+        ["SALOMÉ PÉREZ GÓMEZ"]
       ]);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Estudiantes");
-      XLSX.writeFile(wb, "Plantilla_Ninos_Transicion.xlsx");
+      XLSX.writeFile(wb, "Plantilla_Estudiantes_Transicion.xlsx");
     }
 
     function dibujarEnCanvas(canvasEl, alumno) {
       return new Promise(resolve => {
         const ctx = canvasEl.getContext('2d');
         const posY = parseInt(document.getElementById('sliderY').value);
+        const posX = parseInt(document.getElementById('sliderX').value);
         const fontSize = parseInt(document.getElementById('inputFontSize').value);
         const colorTexto = document.getElementById('inputColor').value;
+        const taparLinea = document.getElementById('checkTaparLinea').checked;
 
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        const imgSrc = obtenerPlantilla(alumno.motivo);
+        const imgSrc = obtenerPlantillaDisponible(alumno.motivo);
 
         if (imgSrc) {
           const img = new Image();
           img.onload = () => {
             ctx.drawImage(img, 0, 0, canvasEl.width, canvasEl.height);
-            estamparTextoLimpio(ctx, canvasEl.width, alumno.nombre, posY, fontSize, colorTexto);
+            estamparTextoInteligente(ctx, canvasEl.width, alumno.nombre, posX, posY, fontSize, colorTexto, taparLinea);
             resolve();
           };
           img.src = imgSrc;
         } else {
-          ctx.fillStyle = '#fca5a5';
-          ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
-          estamparTextoLimpio(ctx, canvasEl.width, alumno.nombre, posY, fontSize, colorTexto);
+          dibujarPlantillaDemo(ctx, canvasEl.width, canvasEl.height, alumno.motivo);
+          estamparTextoInteligente(ctx, canvasEl.width, alumno.nombre, posX, posY, fontSize, colorTexto, taparLinea);
           resolve();
         }
       });
     }
 
-    function estamparTextoLimpio(ctx, anchoCanvas, nombre, y, fontSize, color) {
+    function estamparTextoInteligente(ctx, anchoCanvas, nombre, x, y, fontSize, color, taparLinea) {
       ctx.save();
-      // Tapa completamente el cuadro blanco original donde venía escrito "NOMBRE: ____________"
-      // para que no quede ningún texto duplicado debajo.
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath();
-      ctx.roundRect(110, y - 55, 680, 110, 15);
-      ctx.fill();
-
-      // Dibuja el nombre del niño perfectamente centrado en la caja blanca
       ctx.font = `700 ${fontSize}px 'Fredoka', sans-serif`;
+      
+      const maxAncho = 660;
+      let lineas = [nombre.toUpperCase()];
+
+      // Salto automático a dos líneas si el nombre es muy largo
+      if (ctx.measureText(nombre.toUpperCase()).width > maxAncho) {
+        const palabras = nombre.toUpperCase().split(' ');
+        let mitad = Math.ceil(palabras.length / 2);
+        let linea1 = palabras.slice(0, mitad).join(' ');
+        let linea2 = palabras.slice(mitad).join(' ');
+        lineas = [linea1, linea2];
+      }
+
+      if (taparLinea) {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.roundRect(110, y - (fontSize * 0.9), 680, lineas.length > 1 ? fontSize * 2.2 : fontSize * 1.5, 15);
+        ctx.fill();
+      }
+
       ctx.fillStyle = color;
       ctx.textAlign = 'center';
-      ctx.fillText(nombre.toUpperCase(), anchoCanvas / 2, y + 15, 650);
+
+      if (lineas.length === 1) {
+        ctx.fillText(lineas[0], anchoCanvas / 2, y, maxAncho);
+      } else {
+        // Dos renglones bien distribuidos
+        ctx.fillText(lineas[0], anchoCanvas / 2, y - (fontSize * 0.55), maxAncho);
+        ctx.fillText(lineas[1], anchoCanvas / 2, y + (fontSize * 0.65), maxAncho);
+      }
       ctx.restore();
+    }
+
+    function dibujarPlantillaDemo(ctx, w, h, motivo) {
+      const colores = { lila: '#d8b4fe', amarillo: '#fde047', verde: '#86efac', rojo: '#fca5a5', azul: '#7dd3fc' };
+      ctx.fillStyle = colores[motivo] || '#d8b4fe';
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.roundRect(110, 500, 680, 270, 35);
+      ctx.fill();
     }
 
     async function regenerarGaleria() {
       document.getElementById('lblY').innerText = document.getElementById('sliderY').value;
+      document.getElementById('lblX').innerText = document.getElementById('sliderX').value;
       document.getElementById('contadorAlumnos').innerText = alumnos.length;
 
       const contenedor = document.getElementById('galeriaCaratulas');
@@ -381,12 +456,12 @@
         controles.className = "w-full space-y-2 text-xs";
         controles.innerHTML = `
           <div class="flex justify-between items-center gap-1">
-            <span class="font-bold text-slate-700 truncate">${i + 1}. ${al.nombre}</span>
+            <span class="font-bold text-slate-700 truncate" title="${al.nombre}">${i + 1}. ${al.nombre}</span>
             <select onchange="cambiarMotivoIndividual(${i}, this.value)" class="border rounded px-1.5 py-0.5 bg-white text-[11px] font-bold uppercase">
-              ${MOTIVOS_DISPONIBLES.map(m => `<option value="${m}" ${al.motivo === m ? 'selected' : ''}>${m}</option>`).join('')}
+              ${MOTIVOS.map(m => `<option value="${m}" ${al.motivo === m ? 'selected' : ''}>${m}</option>`).join('')}
             </select>
           </div>
-          <button onclick="descargarIndividual(${i})" class="w-full bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold py-1 rounded-lg transition">
+          <button onclick="descargarIndividual(${i})" class="w-full bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold py-1.5 rounded-lg transition">
             ⬇️ Descargar PNG
           </button>
         `;
@@ -401,14 +476,9 @@
 
     function cambiarMotivoIndividual(index, nuevoMotivo) {
       alumnos[index].motivo = nuevoMotivo;
-      guardarYActualizar();
+      guardarListaLocalYRemota();
       const canvasEl = document.getElementById(`canvas_alumno_${index}`);
       if (canvasEl) dibujarEnCanvas(canvasEl, alumnos[index]);
-    }
-
-    function guardarYActualizar() {
-      localStorage.setItem('escarapelas_alumnos_v4', JSON.stringify(alumnos));
-      regenerarGaleria();
     }
 
     function descargarIndividual(index) {
@@ -422,7 +492,7 @@
     }
 
     async function descargarTodoEnZIP() {
-      if (alumnos.length === 0) return alert('No hay alumnos cargados.');
+      if (alumnos.length === 0) return alert('Primero carga tu archivo de Excel.');
       const zip = new JSZip();
       const carpeta = zip.folder("Escarapelas_Transicion_2027");
 
@@ -437,14 +507,14 @@
       const content = await zip.generateAsync({ type: "blob" });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(content);
-      link.download = "Escarapelas_Todas_PNG.zip";
+      link.download = "Escarapelas_Transicion_2027_PNG.zip";
       link.click();
     }
 
     async function descargarTodoEnPDF() {
-      if (alumnos.length === 0) return alert('No hay alumnos cargados.');
+      if (alumnos.length === 0) return alert('Primero carga tu archivo de Excel.');
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [216, 330] });
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [216, 330] }); // Oficio
 
       const posiciones = [
         { x: 14, y: 15 },
@@ -461,14 +531,52 @@
         pdf.addImage(imgData, 'JPEG', pos.x, pos.y, 90, 130);
       }
 
-      pdf.save("Pliego_Escarapelas_9x13cm.pdf");
+      pdf.save("Pliego_Escarapelas_Oficio_9x13cm.pdf");
     }
 
     function limpiarLista() {
       if (!confirm('¿Deseas vaciar la lista?')) return;
       alumnos = [];
-      localStorage.removeItem('escarapelas_alumnos_v4');
+      localStorage.removeItem('escarapelas_alumnos_v5');
       regenerarGaleria();
+    }
+
+    function abrirModalBD() { document.getElementById('modalBD').classList.replace('hidden', 'flex'); }
+    function cerrarModalBD() { document.getElementById('modalBD').classList.replace('flex', 'hidden'); }
+
+    function inicializarBD() {
+      const url = localStorage.getItem('supa_url');
+      const key = localStorage.getItem('supa_key');
+      if (url && key && window.supabase) {
+        document.getElementById('supaUrl').value = url;
+        document.getElementById('supaKey').value = key;
+        supabaseClient = window.supabase.createClient(url, key);
+      }
+    }
+
+    function guardarConfigBD() {
+      localStorage.setItem('supa_url', document.getElementById('supaUrl').value.trim());
+      localStorage.setItem('supa_key', document.getElementById('supaKey').value.trim());
+      inicializarBD();
+      cerrarModalBD();
+    }
+
+    async function guardarListaLocalYRemota() {
+      localStorage.setItem('escarapelas_alumnos_v5', JSON.stringify(alumnos));
+      if (supabaseClient && alumnos.length > 0) {
+        const registros = alumnos.map(a => ({ nombre: a.nombre, motivo: a.motivo }));
+        await supabaseClient.from('estudiantes').insert(registros);
+      }
+    }
+
+    async function cargarDesdeSupabase() {
+      if (!supabaseClient) return alert('Configura primero Supabase.');
+      const { data, error } = await supabaseClient.from('estudiantes').select('*');
+      if (!error && data) {
+        alumnos = data;
+        regenerarGaleria();
+        cerrarModalBD();
+      }
     }
   </script>
 </body>
