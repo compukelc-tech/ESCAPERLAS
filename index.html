@@ -3,19 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generador Masivo de Escarapelas desde Excel - compukelc</title>
+  <title>Generador Masivo de Escarapelas - compukelc</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#6b21a8">
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- SheetJS para leer archivos de Excel (.xlsx, .xls) -->
+  <!-- SheetJS para leer Excel (.xlsx, .xls, .csv) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <!-- JSZip para descargar todas las imágenes individuales en un .ZIP -->
+  <!-- JSZip para descarga en .ZIP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <!-- jsPDF por si también quieres exportarlas en pliego PDF 9x13 cm -->
+  <!-- jsPDF para pliego PDF 9x13cm -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <!-- Supabase JS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Fuente infantil -->
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
   <style>
@@ -29,88 +27,82 @@
     <div class="flex items-center gap-3">
       <span class="text-3xl">🪪</span>
       <div>
-        <h1 class="text-xl font-bold leading-none">Generador de Carátulas por Lote (Excel a Imagen)</h1>
-        <p class="text-xs text-purple-200">I.E. San Francisco de Sales - Transición 2027 | Desarrollado por compukelc</p>
+        <h1 class="text-xl font-bold leading-none">Generador de Escarapelas Transición 2027</h1>
+        <p class="text-xs text-purple-200">I.E. San Francisco de Sales | compukelc</p>
       </div>
-    </div>
-    <div class="flex gap-2">
-      <button onclick="abrirModalBD()" class="bg-purple-950 hover:bg-black text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
-        🗄️ Base de Datos (Opcional)
-      </button>
     </div>
   </header>
 
   <main class="max-w-7xl mx-auto p-4 space-y-6 mt-2">
 
-    <!-- PASO 1 Y PASO 2 EN LA PARTE SUPERIOR -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
-      <!-- PASO 1: SUBIR LAS IMÁGENES DE LAS CARÁTULAS (7 Columnas) -->
+      <!-- PASO 1: SUBIR IMÁGENES DE LAS CARÁTULAS -->
       <section class="lg:col-span-7 bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
         <div>
-          <h2 class="text-lg font-bold text-purple-800">Paso 1: Sube la(s) imagen(es) de la carátula</h2>
-          <p class="text-xs text-slate-500">Puedes subir 1 sola carátula para todos o subir los 5 colores para que el programa los intercale.</p>
+          <h2 class="text-lg font-bold text-purple-800">Paso 1: Sube tus carátulas por motivo</h2>
+          <p class="text-xs text-slate-500">Sube las imágenes en formato vertical (9x13 cm). Si solo subes una, se aplicará a todo.</p>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
           <label class="cursor-pointer border-2 border-dashed border-purple-400 rounded-xl p-2 text-center bg-purple-50 hover:bg-purple-100 transition flex flex-col items-center justify-center">
             <span class="text-xs font-bold text-purple-800 mb-1">🧸 Lila</span>
             <img id="thumb_lila" class="w-14 h-20 object-cover rounded border hidden mb-1">
-            <span id="status_lila" class="text-[10px] bg-purple-200 text-purple-900 px-2 py-0.5 rounded">Subir imagen</span>
+            <span id="status_lila" class="text-[10px] bg-purple-200 text-purple-900 px-2 py-0.5 rounded">Subir</span>
             <input type="file" accept="image/*" onchange="cargarPlantilla(event, 'lila')" class="hidden">
           </label>
 
           <label class="cursor-pointer border-2 border-dashed border-amber-400 rounded-xl p-2 text-center bg-amber-50 hover:bg-amber-100 transition flex flex-col items-center justify-center">
             <span class="text-xs font-bold text-amber-800 mb-1">🚀 Amarillo</span>
             <img id="thumb_amarillo" class="w-14 h-20 object-cover rounded border hidden mb-1">
-            <span id="status_amarillo" class="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded">Subir imagen</span>
+            <span id="status_amarillo" class="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded">Subir</span>
             <input type="file" accept="image/*" onchange="cargarPlantilla(event, 'amarillo')" class="hidden">
           </label>
 
           <label class="cursor-pointer border-2 border-dashed border-green-500 rounded-xl p-2 text-center bg-green-50 hover:bg-green-100 transition flex flex-col items-center justify-center">
             <span class="text-xs font-bold text-green-800 mb-1">🦁 Verde</span>
             <img id="thumb_verde" class="w-14 h-20 object-cover rounded border hidden mb-1">
-            <span id="status_verde" class="text-[10px] bg-green-200 text-green-900 px-2 py-0.5 rounded">Subir imagen</span>
+            <span id="status_verde" class="text-[10px] bg-green-200 text-green-900 px-2 py-0.5 rounded">Subir</span>
             <input type="file" accept="image/*" onchange="cargarPlantilla(event, 'verde')" class="hidden">
           </label>
 
           <label class="cursor-pointer border-2 border-dashed border-red-400 rounded-xl p-2 text-center bg-red-50 hover:bg-red-100 transition flex flex-col items-center justify-center">
             <span class="text-xs font-bold text-red-800 mb-1">🦖 Rojo</span>
             <img id="thumb_rojo" class="w-14 h-20 object-cover rounded border hidden mb-1">
-            <span id="status_rojo" class="text-[10px] bg-red-200 text-red-900 px-2 py-0.5 rounded">Subir imagen</span>
+            <span id="status_rojo" class="text-[10px] bg-red-200 text-red-900 px-2 py-0.5 rounded">Subir</span>
             <input type="file" accept="image/*" onchange="cargarPlantilla(event, 'rojo')" class="hidden">
           </label>
 
           <label class="cursor-pointer border-2 border-dashed border-sky-400 rounded-xl p-2 text-center bg-sky-50 hover:bg-sky-100 transition flex flex-col items-center justify-center">
             <span class="text-xs font-bold text-sky-800 mb-1">🐙 Azul</span>
             <img id="thumb_azul" class="w-14 h-20 object-cover rounded border hidden mb-1">
-            <span id="status_azul" class="text-[10px] bg-sky-200 text-sky-900 px-2 py-0.5 rounded">Subir imagen</span>
+            <span id="status_azul" class="text-[10px] bg-sky-200 text-sky-900 px-2 py-0.5 rounded">Subir</span>
             <input type="file" accept="image/*" onchange="cargarPlantilla(event, 'azul')" class="hidden">
           </label>
         </div>
 
-        <!-- Calibración Rápida del Texto -->
+        <!-- Calibración del Texto -->
         <div class="bg-slate-50 p-3 rounded-xl border space-y-3 text-xs">
           <div class="flex justify-between items-center">
-            <span class="font-bold text-purple-900 text-sm">🎯 Calibración de la barra de NOMBRE:</span>
-            <label class="flex items-center gap-1.5 cursor-pointer font-semibold text-slate-700">
-              <input type="checkbox" id="checkTaparLinea" onchange="regenerarGaleria()" class="rounded text-purple-600">
-              <span>Borrar palabra "NOMBRE: ___" y centrar en toda la caja blanca</span>
+            <span class="font-bold text-purple-900 text-sm">🎯 Calibración del Nombre:</span>
+            <label class="flex items-center gap-1.5 cursor-pointer font-semibold text-slate-700 bg-white px-2 py-1 rounded border">
+              <input type="checkbox" id="checkTaparLinea" checked onchange="regenerarGaleria()" class="rounded text-purple-600">
+              <span>Borrar "NOMBRE: ___" y centrar</span>
             </label>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
-              <span class="font-bold block">Altura (Eje Y): <span id="lblY">685</span>px</span>
+              <span class="font-bold block">Altura (Y): <span id="lblY">685</span>px</span>
               <input type="range" id="sliderY" min="450" max="850" value="685" oninput="regenerarGaleria()" class="w-full accent-purple-600">
             </div>
             <div>
-              <span class="font-bold block">Inicio Línea (Eje X): <span id="lblX">355</span>px</span>
-              <input type="range" id="sliderX" min="120" max="600" value="355" oninput="regenerarGaleria()" class="w-full accent-purple-600">
+              <span class="font-bold block">Posición (X): <span id="lblX">150</span>px</span>
+              <input type="range" id="sliderX" min="100" max="600" value="150" oninput="regenerarGaleria()" class="w-full accent-purple-600">
             </div>
             <div>
               <span class="font-bold block mb-1">Tamaño Letra:</span>
-              <input type="number" id="inputFontSize" value="42" min="20" max="85" oninput="regenerarGaleria()" class="w-full border rounded px-2 py-1">
+              <input type="number" id="inputFontSize" value="44" min="20" max="85" oninput="regenerarGaleria()" class="w-full border rounded px-2 py-1 bg-white">
             </div>
             <div>
               <span class="font-bold block mb-1">Color Letra:</span>
@@ -120,39 +112,72 @@
         </div>
       </section>
 
-      <!-- PASO 2: SUBIR ARCHIVO DE EXCEL (5 Columnas) -->
+      <!-- PASO 2: SUBIR EXCEL Y CONFIGURAR REPARTO DE MOTIVOS -->
       <section class="lg:col-span-5 bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between space-y-4">
         <div class="space-y-3">
           <div class="flex justify-between items-start">
             <div>
               <h2 class="text-lg font-bold text-purple-800">Paso 2: Sube tu archivo de Excel</h2>
-              <p class="text-xs text-slate-500">Sube un archivo <code>.xlsx</code>, <code>.xls</code> o <code>.csv</code> con los nombres de los niños.</p>
+              <p class="text-xs text-slate-500">Sube tu listado de alumnos (.xlsx / .csv).</p>
             </div>
             <button onclick="descargarPlantillaExcel()" class="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-2.5 py-1 rounded-lg border border-emerald-300">
-              📥 Descargar Excel Ejemplo
+              📥 Descargar Ejemplo
             </button>
           </div>
 
-          <label class="cursor-pointer border-2 border-dashed border-emerald-500 bg-emerald-50 hover:bg-emerald-100 transition rounded-xl p-6 flex flex-col items-center justify-center text-center">
-            <span class="text-4xl mb-2">📊</span>
-            <span class="text-sm font-bold text-emerald-900">Haz clic aquí para seleccionar tu archivo de Excel</span>
-            <span class="text-xs text-emerald-700 mt-1">Se creará 1 carátula automática por cada fila del Excel</span>
+          <!-- Selector de Modo de Asignación de Color -->
+          <div class="bg-purple-50 p-3 rounded-xl border border-purple-200 space-y-2 text-xs">
+            <span class="font-bold text-purple-900 block">🎨 ¿Cómo deseas aplicar los colores a los niños?</span>
+            <select id="selectModoAsignacion" onchange="cambiarModoAsignacion()" class="w-full border rounded p-1.5 bg-white font-bold text-purple-900">
+              <option value="todos_uno">Aplicar UN SOLO color a TODOS los niños de la lista</option>
+              <option value="rotativo_personalizado">Combinar solo los colores que yo elija</option>
+              <option value="excel">Usar la columna del Excel para cada niño</option>
+            </select>
+
+            <!-- Selector si elige un solo color para todos -->
+            <div id="contenedorUnicoColor" class="pt-1">
+              <span class="font-semibold text-slate-700">Selecciona el color único:</span>
+              <select id="colorUnico" onchange="aplicarModoAsignacion()" class="w-full border rounded p-1 bg-white mt-1 font-bold">
+                <option value="rojo">🦖 Rojo (Dinosaurios)</option>
+                <option value="amarillo">🚀 Amarillo (Espacio)</option>
+                <option value="verde">🦁 Verde (Selva)</option>
+                <option value="lila">🧸 Lila (Escolar)</option>
+                <option value="azul">🐙 Azul (Mar)</option>
+              </select>
+            </div>
+
+            <!-- Selector si elige combinar solo algunos colores -->
+            <div id="contenedorCombinacion" class="pt-1 hidden">
+              <span class="font-semibold text-slate-700 block mb-1">Selecciona qué colores quieres alternar:</span>
+              <div class="flex flex-wrap gap-2 text-[11px] font-bold">
+                <label class="bg-white px-2 py-1 rounded border"><input type="checkbox" name="chkMotivo" value="rojo" checked onchange="aplicarModoAsignacion()"> Rojo</label>
+                <label class="bg-white px-2 py-1 rounded border"><input type="checkbox" name="chkMotivo" value="amarillo" checked onchange="aplicarModoAsignacion()"> Amarillo</label>
+                <label class="bg-white px-2 py-1 rounded border"><input type="checkbox" name="chkMotivo" value="verde" onchange="aplicarModoAsignacion()"> Verde</label>
+                <label class="bg-white px-2 py-1 rounded border"><input type="checkbox" name="chkMotivo" value="lila" onchange="aplicarModoAsignacion()"> Lila</label>
+                <label class="bg-white px-2 py-1 rounded border"><input type="checkbox" name="chkMotivo" value="azul" onchange="aplicarModoAsignacion()"> Azul</label>
+              </div>
+            </div>
+          </div>
+
+          <label class="cursor-pointer border-2 border-dashed border-emerald-500 bg-emerald-50 hover:bg-emerald-100 transition rounded-xl p-4 flex flex-col items-center justify-center text-center">
+            <span class="text-3xl mb-1">📊</span>
+            <span class="text-sm font-bold text-emerald-900">Seleccionar archivo de Excel con alumnos</span>
             <input type="file" id="inputExcel" accept=".xlsx, .xls, .csv" onchange="procesarArchivoExcel(event)" class="hidden">
           </label>
         </div>
 
-        <!-- Botones de Descarga Masiva -->
+        <!-- Botones de Descarga -->
         <div class="space-y-2 pt-2 border-t">
           <div class="flex justify-between items-center text-xs text-slate-600 mb-1">
-            <span>Total niños cargados: <b id="contadorAlumnos" class="text-purple-800 text-sm">0</b></span>
+            <span>Total alumnos: <b id="contadorAlumnos" class="text-purple-800 text-sm">0</b></span>
             <button onclick="limpiarLista()" class="text-red-500 hover:underline">Vaciar lista</button>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <button onclick="descargarTodoEnZIP()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-sm shadow flex items-center justify-center gap-2">
-              📦 Descargar Todas en .ZIP (PNG)
+            <button onclick="descargarTodoEnZIP()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs shadow flex items-center justify-center gap-1">
+              📦 Descargar .ZIP (Imágenes)
             </button>
-            <button onclick="descargarTodoEnPDF()" class="bg-purple-700 hover:bg-purple-800 text-white font-bold py-3 px-4 rounded-xl text-sm shadow flex items-center justify-center gap-2">
-              🖨️ Descargar Pliego PDF (9x13cm)
+            <button onclick="descargarTodoEnPDF()" class="bg-purple-700 hover:bg-purple-800 text-white font-bold py-2.5 px-3 rounded-xl text-xs shadow flex items-center justify-center gap-1">
+              🖨️ Descargar Pliego PDF
             </button>
           </div>
         </div>
@@ -160,61 +185,33 @@
 
     </div>
 
-    <!-- PASO 3: GALERÍA DE CARÁTULAS GENERADAS (1 POR CADA NIÑO DEL EXCEL) -->
+    <!-- PASO 3: GALERÍA DE RESULTADOS -->
     <section class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-      <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
-        <div>
-          <h2 class="text-lg font-bold text-purple-800">Paso 3: Carátulas Generadas Individualmente</h2>
-          <p class="text-xs text-slate-500">Haz clic en el botón debajo de cualquier carátula si deseas descargar solo la imagen de ese niño o cambiarle el color de fondo.</p>
-        </div>
-      </div>
+      <h2 class="text-lg font-bold text-purple-800 mb-1">Paso 3: Vista previa individual por estudiante</h2>
+      <p class="text-xs text-slate-500 mb-4">Puedes cambiar el color de cualquier estudiante de forma individual si lo requieres antes de descargar.</p>
 
-      <!-- Cuadrícula donde aparece cada imagen generada -->
       <div id="galeriaCaratulas" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
     </section>
 
   </main>
 
-  <!-- MODAL DE BASE DE DATOS (SUPABASE / GOOGLE SHEETS) -->
-  <div id="modalBD" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-xl max-w-md w-full p-5 space-y-4">
-      <h3 class="text-lg font-bold text-purple-800">Respaldo en Base de Datos (Opcional)</h3>
-      <p class="text-xs text-slate-600">El programa funciona 100% directo con tu archivo de Excel. Si además deseas que la lista quede guardada en la nube (Supabase), ingresa tus datos aquí:</p>
-      <div class="space-y-2 text-xs">
-        <label class="font-bold block">URL de Supabase:</label>
-        <input type="text" id="supaUrl" placeholder="https://xyz.supabase.co" class="w-full border p-2 rounded">
-        <label class="font-bold block">Anon Key de Supabase:</label>
-        <input type="password" id="supaKey" placeholder="eyJhbGciOiJIUzI1NiIsInR..." class="w-full border p-2 rounded">
-      </div>
-      <div class="flex justify-between items-center pt-2">
-        <button onclick="cargarDesdeSupabase()" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold">🔄 Traer lista de BD</button>
-        <div class="flex gap-2">
-          <button onclick="cerrarModalBD()" class="px-3 py-1.5 bg-slate-200 rounded-lg text-xs">Cerrar</button>
-          <button onclick="guardarConfigBD()" class="px-3 py-1.5 bg-purple-700 text-white font-bold rounded-lg text-xs">Guardar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script>
-    const MOTIVOS = ['lila', 'amarillo', 'verde', 'rojo', 'azul'];
-    let plantillas = JSON.parse(localStorage.getItem('escarapelas_plantillas_v2')) || {};
-    let alumnos = JSON.parse(localStorage.getItem('escarapelas_alumnos_v2')) || [
-      { id: 1, nombre: 'MARIANA LAGUADO', motivo: 'lila' },
-      { id: 2, nombre: 'KELMER ANDREY', motivo: 'amarillo' }
+    const MOTIVOS_DISPONIBLES = ['lila', 'amarillo', 'verde', 'rojo', 'azul'];
+    let plantillas = JSON.parse(localStorage.getItem('escarapelas_plantillas_v3')) || {};
+    let alumnos = JSON.parse(localStorage.getItem('escarapelas_alumnos_v3')) || [
+      { id: 1, nombre: 'MARIANA LAGUADO', motivo: 'rojo' },
+      { id: 2, nombre: 'KELMER ANDREY', motivo: 'rojo' }
     ];
-    let supabaseClient = null;
 
     window.onload = () => {
-      inicializarBD();
       actualizarMiniaturasPlantillas();
+      cambiarModoAsignacion();
       regenerarGaleria();
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(() => {});
       }
     };
 
-    // --- 1. CARGAR IMÁGENES DE LAS CARÁTULAS ---
     function cargarPlantilla(event, motivo) {
       const file = event.target.files[0];
       if (!file) return;
@@ -222,10 +219,8 @@
       reader.onload = function(e) {
         plantillas[motivo] = e.target.result;
         try {
-          localStorage.setItem('escarapelas_plantillas_v2', JSON.stringify(plantillas));
-        } catch (err) {
-          console.warn('Memoria local llena, se mantiene en RAM durante la sesión.');
-        }
+          localStorage.setItem('escarapelas_plantillas_v3', JSON.stringify(plantillas));
+        } catch (err) {}
         actualizarMiniaturasPlantillas();
         regenerarGaleria();
       };
@@ -233,72 +228,82 @@
     }
 
     function actualizarMiniaturasPlantillas() {
-      MOTIVOS.forEach(m => {
+      MOTIVOS_DISPONIBLES.forEach(m => {
         const imgEl = document.getElementById('thumb_' + m);
         const stEl = document.getElementById('status_' + m);
         if (plantillas[m]) {
           imgEl.src = plantillas[m];
           imgEl.classList.remove('hidden');
-          stEl.innerText = '✅ Cargada';
+          stEl.innerText = '✅ OK';
         }
       });
     }
 
-    function obtenerPlantillaDisponible(motivoPreferido) {
-      if (plantillas[motivoPreferido]) return plantillas[motivoPreferido];
-      // Si el usuario solo subió 1 imagen en cualquiera de los botones, usa esa para todos
-      for (const m of MOTIVOS) {
+    function obtenerPlantilla(motivo) {
+      if (plantillas[motivo]) return plantillas[motivo];
+      // Si no subieron ese motivo específico, busca cualquier otra imagen que hayan subido
+      for (const m of MOTIVOS_DISPONIBLES) {
         if (plantillas[m]) return plantillas[m];
       }
       return null;
     }
 
-    // --- 2. LEER EL ARCHIVO DE EXCEL (.XLSX, .XLS, .CSV) ---
+    function cambiarModoAsignacion() {
+      const modo = document.getElementById('selectModoAsignacion').value;
+      document.getElementById('contenedorUnicoColor').classList.toggle('hidden', modo !== 'todos_uno');
+      document.getElementById('contenedorCombinacion').classList.toggle('hidden', modo !== 'rotativo_personalizado');
+      aplicarModoAsignacion();
+    }
+
+    function aplicarModoAsignacion() {
+      if (alumnos.length === 0) return;
+      const modo = document.getElementById('selectModoAsignacion').value;
+
+      if (modo === 'todos_uno') {
+        const colorUnico = document.getElementById('colorUnico').value;
+        alumnos.forEach(al => al.motivo = colorUnico);
+      } else if (modo === 'rotativo_personalizado') {
+        const checkboxes = document.querySelectorAll('input[name="chkMotivo"]:checked');
+        const seleccionados = Array.from(checkboxes).map(cb => cb.value);
+        if (seleccionados.length === 0) return;
+        alumnos.forEach((al, idx) => {
+          al.motivo = seleccionados[idx % seleccionados.length];
+        });
+      }
+      guardarYActualizar();
+    }
+
     function procesarArchivoExcel(event) {
       const file = event.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = async function(e) {
+      reader.onload = function(e) {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
-        const primeraHoja = workbook.SheetNames[0];
-        const hoja = workbook.Sheets[primeraHoja];
-        
-        // Convertir filas del Excel en una matriz
+        const hoja = workbook.Sheets[workbook.SheetNames[0]];
         const filas = XLSX.utils.sheet_to_json(hoja, { header: 1 });
         
         const nuevosAlumnos = [];
         filas.forEach((fila, idx) => {
           if (!fila || fila.length === 0) return;
-          const textoCelda = String(fila[0] || '').trim();
-          
-          // Ignorar la fila de encabezado si dice "NOMBRE" o "ESTUDIANTE"
-          if (!textoCelda || (idx === 0 && /^(nombre|estudiante|alumno|niño|nino|nombres)$/i.test(textoCelda))) {
-            return;
-          }
-
-          // Revisar si la segunda columna del Excel especifica el color/motivo
-          let motivoFila = String(fila[1] || '').trim().toLowerCase();
-          if (!MOTIVOS.includes(motivoFila)) {
-            motivoFila = MOTIVOS[nuevosAlumnos.length % MOTIVOS.length];
-          }
+          const nombre = String(fila[0] || '').trim();
+          if (!nombre || (idx === 0 && /^(nombre|estudiante|alumno|niño|nombres)$/i.test(nombre))) return;
 
           nuevosAlumnos.push({
             id: Date.now() + idx,
-            nombre: textoCelda,
-            motivo: motivoFila
+            nombre: nombre,
+            motivo: 'rojo'
           });
         });
 
         if (nuevosAlumnos.length === 0) {
-          alert('No se encontraron nombres en la primera columna del archivo de Excel.');
+          alert('No se encontraron nombres en la primera columna del Excel.');
           return;
         }
 
         alumnos = nuevosAlumnos;
-        guardarListaLocalYRemota();
-        regenerarGaleria();
+        aplicarModoAsignacion();
         event.target.value = '';
       };
       reader.readAsArrayBuffer(file);
@@ -306,19 +311,16 @@
 
     function descargarPlantillaExcel() {
       const ws = XLSX.utils.aoa_to_sheet([
-        ["NOMBRE DEL ESTUDIANTE", "COLOR (Opcional: lila, amarillo, verde, rojo, azul)"],
-        ["MARIANA LAGUADO", "lila"],
-        ["KELMER ANDREY LAGUADO", "amarillo"],
-        ["SALOMÉ PÉREZ", "verde"],
-        ["MATEO RODRÍGUEZ", "rojo"],
-        ["LUCÍA GÓMEZ", "azul"]
+        ["NOMBRE DEL ESTUDIANTE"],
+        ["MARIANA LAGUADO CÁCERES"],
+        ["KELMER ANDREY LAGUADO"],
+        ["SALOMÉ PÉREZ GÓMEZ"]
       ]);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Transicion_2027");
-      XLSX.writeFile(wb, "Lista_Estudiantes_Transicion_2027.xlsx");
+      XLSX.utils.book_append_sheet(wb, ws, "Estudiantes");
+      XLSX.writeFile(wb, "Plantilla_Ninos_Transicion.xlsx");
     }
 
-    // --- 3. DIBUJAR UNA CARÁTULA POR CADA NIÑO ---
     function dibujarEnCanvas(canvasEl, alumno) {
       return new Promise(resolve => {
         const ctx = canvasEl.getContext('2d');
@@ -329,63 +331,50 @@
         const taparLinea = document.getElementById('checkTaparLinea').checked;
 
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        const imgSrc = obtenerPlantillaDisponible(alumno.motivo);
+        const imgSrc = obtenerPlantilla(alumno.motivo);
 
         if (imgSrc) {
           const img = new Image();
           img.onload = () => {
             ctx.drawImage(img, 0, 0, canvasEl.width, canvasEl.height);
-            estamparTextoNombre(ctx, canvasEl.width, alumno.nombre, posX, posY, fontSize, colorTexto, taparLinea);
+            estamparTexto(ctx, canvasEl.width, alumno.nombre, posX, posY, fontSize, colorTexto, taparLinea);
             resolve();
           };
           img.src = imgSrc;
         } else {
-          dibujarPlantillaDemo(ctx, canvasEl.width, canvasEl.height, alumno.motivo);
-          estamparTextoNombre(ctx, canvasEl.width, alumno.nombre, posX, posY, fontSize, colorTexto, taparLinea);
+          // Fondo demo si no hay imagen subida
+          ctx.fillStyle = '#fca5a5';
+          ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.roundRect(110, 500, 680, 270, 35);
+          ctx.fill();
+          estamparTexto(ctx, canvasEl.width, alumno.nombre, posX, posY, fontSize, colorTexto, taparLinea);
           resolve();
         }
       });
     }
 
-    function estamparTextoNombre(ctx, anchoCanvas, nombre, x, y, fontSize, color, taparLinea) {
+    function estamparTexto(ctx, anchoCanvas, nombre, x, y, fontSize, color, taparLinea) {
       ctx.save();
+      ctx.font = `700 ${fontSize}px 'Fredoka', sans-serif`;
+      ctx.fillStyle = color;
+
       if (taparLinea) {
+        // Limpia toda la franja blanca central para que el nombre quede perfecto sin rastro de la raya anterior
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.roundRect(125, y - 95, 650, 150, 20);
+        ctx.roundRect(115, y - (fontSize * 1.1), 670, fontSize * 1.6, 15);
         ctx.fill();
-        ctx.font = `700 ${fontSize}px 'Fredoka', sans-serif`;
+
         ctx.fillStyle = color;
         ctx.textAlign = 'center';
-        ctx.fillText(nombre, anchoCanvas / 2, y, 620);
+        ctx.fillText(nombre.toUpperCase(), anchoCanvas / 2, y, 650);
       } else {
-        ctx.font = `700 ${fontSize}px 'Fredoka', sans-serif`;
-        ctx.fillStyle = color;
-        ctx.textAlign = 'center';
-        // Centra el nombre sobre la línea negra que va desde X hasta el borde derecho de la caja blanca (765px)
-        const anchoLinea = 765 - x;
-        const centroLinea = x + (anchoLinea / 2);
-        ctx.fillText(nombre, centroLinea, y, anchoLinea - 10);
+        ctx.textAlign = 'left';
+        ctx.fillText(nombre.toUpperCase(), x, y, 700 - x);
       }
       ctx.restore();
-    }
-
-    function dibujarPlantillaDemo(ctx, w, h, motivo) {
-      const colores = { lila: '#d8b4fe', amarillo: '#fde047', verde: '#86efac', rojo: '#fca5a5', azul: '#7dd3fc' };
-      ctx.fillStyle = colores[motivo] || '#d8b4fe';
-      ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.roundRect(110, 500, 680, 270, 35);
-      ctx.fill();
-      ctx.fillStyle = '#000000';
-      ctx.font = "700 42px 'Fredoka', sans-serif";
-      ctx.fillText("NOMBRE: ___________________", 150, 695);
-      ctx.fillStyle = '#334155';
-      ctx.font = "700 28px sans-serif";
-      ctx.textAlign = 'center';
-      ctx.fillText("Sube la carátula arriba en el Paso 1", w / 2, 430);
-      ctx.textAlign = 'start';
     }
 
     async function regenerarGaleria() {
@@ -411,13 +400,13 @@
         controles.className = "w-full space-y-2 text-xs";
         controles.innerHTML = `
           <div class="flex justify-between items-center gap-1">
-            <span class="font-bold text-slate-700 truncate" title="${al.nombre}">${i + 1}. ${al.nombre}</span>
-            <select onchange="cambiarMotivoIndividual(${i}, this.value)" class="border rounded px-1.5 py-0.5 bg-white text-[11px] font-bold">
-              ${MOTIVOS.map(m => `<option value="${m}" ${al.motivo === m ? 'selected' : ''}>${m.toUpperCase()}</option>`).join('')}
+            <span class="font-bold text-slate-700 truncate">${i + 1}. ${al.nombre}</span>
+            <select onchange="cambiarMotivoIndividual(${i}, this.value)" class="border rounded px-1.5 py-0.5 bg-white text-[11px] font-bold uppercase">
+              ${MOTIVOS_DISPONIBLES.map(m => `<option value="${m}" ${al.motivo === m ? 'selected' : ''}>${m}</option>`).join('')}
             </select>
           </div>
-          <button onclick="descargarIndividual(${i})" class="w-full bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold py-1.5 rounded-lg transition">
-            ⬇️ Descargar esta imagen (.PNG)
+          <button onclick="descargarIndividual(${i})" class="w-full bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold py-1 rounded-lg transition">
+            ⬇️ Descargar PNG
           </button>
         `;
 
@@ -431,12 +420,16 @@
 
     function cambiarMotivoIndividual(index, nuevoMotivo) {
       alumnos[index].motivo = nuevoMotivo;
-      guardarListaLocalYRemota();
+      guardarYActualizar();
       const canvasEl = document.getElementById(`canvas_alumno_${index}`);
       if (canvasEl) dibujarEnCanvas(canvasEl, alumnos[index]);
     }
 
-    // --- 4. DESCARGAR IMÁGENES INDIVIDUALES O TODAS EN .ZIP / .PDF ---
+    function guardarYActualizar() {
+      localStorage.setItem('escarapelas_alumnos_v3', JSON.stringify(alumnos));
+      regenerarGaleria();
+    }
+
     function descargarIndividual(index) {
       const canvasEl = document.getElementById(`canvas_alumno_${index}`);
       const al = alumnos[index];
@@ -448,9 +441,9 @@
     }
 
     async function descargarTodoEnZIP() {
-      if (alumnos.length === 0) return alert('Primero carga tu archivo de Excel.');
+      if (alumnos.length === 0) return alert('No hay alumnos cargados.');
       const zip = new JSZip();
-      const carpeta = zip.folder("Caratulas_Transicion_2027");
+      const carpeta = zip.folder("Escarapelas_Transicion_2027");
 
       for (let i = 0; i < alumnos.length; i++) {
         const canvasEl = document.getElementById(`canvas_alumno_${i}`);
@@ -463,14 +456,14 @@
       const content = await zip.generateAsync({ type: "blob" });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(content);
-      link.download = "Caratulas_Transicion_2027_Imagenes.zip";
+      link.download = "Escarapelas_Todas_PNG.zip";
       link.click();
     }
 
     async function descargarTodoEnPDF() {
-      if (alumnos.length === 0) return alert('Primero carga tu archivo de Excel.');
+      if (alumnos.length === 0) return alert('No hay alumnos cargados.');
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [216, 330] }); // Hoja Oficio
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [216, 330] }); // Oficio
 
       const posiciones = [
         { x: 14, y: 15 },
@@ -484,56 +477,17 @@
         const canvasEl = document.getElementById(`canvas_alumno_${i}`);
         const imgData = canvasEl.toDataURL('image/jpeg', 0.95);
         const pos = posiciones[i % 4];
-        pdf.addImage(imgData, 'JPEG', pos.x, pos.y, 90, 130); // 9cm x 13cm exactos
+        pdf.addImage(imgData, 'JPEG', pos.x, pos.y, 90, 130);
       }
 
       pdf.save("Pliego_Escarapelas_9x13cm.pdf");
     }
 
     function limpiarLista() {
-      if (!confirm('¿Deseas vaciar la lista actual de niños?')) return;
+      if (!confirm('¿Deseas vaciar la lista?')) return;
       alumnos = [];
-      localStorage.removeItem('escarapelas_alumnos_v2');
+      localStorage.removeItem('escarapelas_alumnos_v3');
       regenerarGaleria();
-    }
-
-    // --- 5. RESPALDO OPCIONAL EN BASE DE DATOS ---
-    function abrirModalBD() { document.getElementById('modalBD').classList.replace('hidden', 'flex'); }
-    function cerrarModalBD() { document.getElementById('modalBD').classList.replace('flex', 'hidden'); }
-
-    function inicializarBD() {
-      const url = localStorage.getItem('supa_url');
-      const key = localStorage.getItem('supa_key');
-      if (url && key && window.supabase) {
-        document.getElementById('supaUrl').value = url;
-        document.getElementById('supaKey').value = key;
-        supabaseClient = window.supabase.createClient(url, key);
-      }
-    }
-
-    function guardarConfigBD() {
-      localStorage.setItem('supa_url', document.getElementById('supaUrl').value.trim());
-      localStorage.setItem('supa_key', document.getElementById('supaKey').value.trim());
-      inicializarBD();
-      cerrarModalBD();
-    }
-
-    async function guardarListaLocalYRemota() {
-      localStorage.setItem('escarapelas_alumnos_v2', JSON.stringify(alumnos));
-      if (supabaseClient && alumnos.length > 0) {
-        const registros = alumnos.map(a => ({ nombre: a.nombre, motivo: a.motivo }));
-        await supabaseClient.from('estudiantes').insert(registros);
-      }
-    }
-
-    async function cargarDesdeSupabase() {
-      if (!supabaseClient) return alert('Configura primero la URL y Key de Supabase.');
-      const { data, error } = await supabaseClient.from('estudiantes').select('*');
-      if (!error && data) {
-        alumnos = data;
-        regenerarGaleria();
-        cerrarModalBD();
-      }
     }
   </script>
 </body>
