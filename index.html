@@ -92,20 +92,13 @@
         <div class="bg-slate-50 p-3 rounded-xl border space-y-3 text-xs">
           <div class="flex justify-between items-center">
             <span class="font-bold text-purple-900 text-sm">🎯 Calibración del Nombre:</span>
-            <label class="flex items-center gap-1.5 cursor-pointer font-semibold text-slate-700 bg-white px-2 py-1 rounded border">
-              <input type="checkbox" id="checkTaparLinea" checked onchange="regenerarGaleria()" class="rounded text-purple-600">
-              <span>Borrar "NOMBRE: ___" y centrar</span>
-            </label>
+            <span class="text-slate-500 font-semibold">Caja blanca 100% limpia y centrada</span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <span class="font-bold block">Altura (Y): <span id="lblY">590</span>px</span>
-              <input type="range" id="sliderY" min="450" max="850" value="590" oninput="regenerarGaleria()" class="w-full accent-purple-600">
-            </div>
-            <div>
-              <span class="font-bold block">Posición (X): <span id="lblX">150</span>px</span>
-              <input type="range" id="sliderX" min="100" max="600" value="150" oninput="regenerarGaleria()" class="w-full accent-purple-600">
+              <span class="font-bold block">Altura Vertical (Y): <span id="lblY">630</span>px</span>
+              <input type="range" id="sliderY" min="500" max="750" value="630" oninput="regenerarGaleria()" class="w-full accent-purple-600">
             </div>
             <div>
               <span class="font-bold block mb-1">Tamaño Letra:</span>
@@ -229,8 +222,8 @@
 
   <script>
     const MOTIVOS = ['lila', 'amarillo', 'verde', 'rojo', 'azul'];
-    let plantillas = JSON.parse(localStorage.getItem('escarapelas_plantillas_v6')) || {};
-    let alumnos = JSON.parse(localStorage.getItem('escarapelas_alumnos_v6')) || [
+    let plantillas = JSON.parse(localStorage.getItem('escarapelas_plantillas_v7')) || {};
+    let alumnos = JSON.parse(localStorage.getItem('escarapelas_alumnos_v7')) || [
       { id: 1, nombre: 'MARIANA LAGUADO CÁCERES', motivo: 'rojo' },
       { id: 2, nombre: 'KELMER ANDREY', motivo: 'rojo' }
     ];
@@ -253,7 +246,7 @@
       reader.onload = function(e) {
         plantillas[motivo] = e.target.result;
         try {
-          localStorage.setItem('escarapelas_plantillas_v6', JSON.stringify(plantillas));
+          localStorage.setItem('escarapelas_plantillas_v7', JSON.stringify(plantillas));
         } catch (err) {}
         actualizarMiniaturasPlantillas();
         regenerarGaleria();
@@ -365,7 +358,6 @@
         const posY = parseInt(document.getElementById('sliderY').value);
         const fontSize = parseInt(document.getElementById('inputFontSize').value);
         const colorTexto = document.getElementById('inputColor').value;
-        const taparLinea = document.getElementById('checkTaparLinea').checked;
 
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
         const imgSrc = obtenerPlantillaDisponible(alumno.motivo);
@@ -374,19 +366,19 @@
           const img = new Image();
           img.onload = () => {
             ctx.drawImage(img, 0, 0, canvasEl.width, canvasEl.height);
-            estamparTextoInteligente(ctx, canvasEl.width, alumno.nombre, posY, fontSize, colorTexto, taparLinea);
+            estamparTextoInteligente(ctx, canvasEl.width, alumno.nombre, posY, fontSize, colorTexto);
             resolve();
           };
           img.src = imgSrc;
         } else {
           dibujarPlantillaDemo(ctx, canvasEl.width, canvasEl.height, alumno.motivo);
-          estamparTextoInteligente(ctx, canvasEl.width, alumno.nombre, posY, fontSize, colorTexto, taparLinea);
+          estamparTextoInteligente(ctx, canvasEl.width, alumno.nombre, posY, fontSize, colorTexto);
           resolve();
         }
       });
     }
 
-    function estamparTextoInteligente(ctx, anchoCanvas, nombre, y, fontSize, color, taparLinea) {
+    function estamparTextoInteligente(ctx, anchoCanvas, nombre, y, fontSize, color) {
       ctx.save();
       ctx.font = `700 ${fontSize}px 'Fredoka', sans-serif`;
       
@@ -402,23 +394,21 @@
         lineas = [linea1, linea2];
       }
 
-      if (taparLinea) {
-        // Tapa exactamente desde la parte superior de la leyenda "NOMBRE:" hasta abajo de la línea
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.roundRect(110, y - 55, 680, lineas.length > 1 ? 160 : 110, 15);
-        ctx.fill();
-      }
+      // LIMPIEZA TOTAL: Borra por completo toda la zona superior de la caja blanca (incluyendo la leyenda "NOMBRE:")
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.roundRect(100, 480, 700, 280, 20);
+      ctx.fill();
 
       ctx.fillStyle = color;
       ctx.textAlign = 'center';
 
       if (lineas.length === 1) {
-        ctx.fillText(lineas[0], anchoCanvas / 2, y + 15, maxAncho);
+        ctx.fillText(lineas[0], anchoCanvas / 2, y, maxAncho);
       } else {
-        // Dos renglones bien distribuidos en el espacio de la caja blanca
-        ctx.fillText(lineas[0], anchoCanvas / 2, y - 5, maxAncho);
-        ctx.fillText(lineas[1], anchoCanvas / 2, y + 45, maxAncho);
+        // Dos renglones bien distribuidos
+        ctx.fillText(lineas[0], anchoCanvas / 2, y - (fontSize * 0.5), maxAncho);
+        ctx.fillText(lineas[1], anchoCanvas / 2, y + (fontSize * 0.65), maxAncho);
       }
       ctx.restore();
     }
@@ -429,7 +419,7 @@
       ctx.fillRect(0, 0, w, h);
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
-      ctx.roundRect(110, 500, 680, 270, 35);
+      ctx.roundRect(100, 480, 700, 280, 20);
       ctx.fill();
     }
 
@@ -500,7 +490,7 @@
         const dataUrl = canvasEl.toDataURL('image/png');
         const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
         const nombreLimpio = alumnos[i].nombre.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '').replace(/\s+/g, '_');
-        carpeta.file(`${String(i + 1).padStart(2, '0')}_${nombreLimpio}.png`, base64Data, { base64: true });
+        carpeta.file(`${String(index + 1).padStart(2, '0')}_${nombreLimpio}.png`, base64Data, { base64: true }); // corregido index por i
       }
 
       const content = await zip.generateAsync({ type: "blob" });
@@ -536,7 +526,7 @@
     function limpiarLista() {
       if (!confirm('¿Deseas vaciar la lista?')) return;
       alumnos = [];
-      localStorage.removeItem('escarapelas_alumnos_v6');
+      localStorage.removeItem('escarapelas_alumnos_v7');
       regenerarGaleria();
     }
 
@@ -561,7 +551,7 @@
     }
 
     async function guardarListaLocalYRemota() {
-      localStorage.setItem('escarapelas_alumnos_v6', JSON.stringify(alumnos));
+      localStorage.setItem('escarapelas_alumnos_v7', JSON.stringify(alumnos));
       if (supabaseClient && alumnos.length > 0) {
         const registros = alumnos.map(a => ({ nombre: a.nombre, motivo: a.motivo }));
         await supabaseClient.from('estudiantes').insert(registros);
