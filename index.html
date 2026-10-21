@@ -100,8 +100,8 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
-              <span class="font-bold block">Altura (Y): <span id="lblY">620</span>px</span>
-              <input type="range" id="sliderY" min="450" max="850" value="620" oninput="regenerarGaleria()" class="w-full accent-purple-600">
+              <span class="font-bold block">Altura (Y): <span id="lblY">590</span>px</span>
+              <input type="range" id="sliderY" min="450" max="850" value="590" oninput="regenerarGaleria()" class="w-full accent-purple-600">
             </div>
             <div>
               <span class="font-bold block">Posición (X): <span id="lblX">150</span>px</span>
@@ -109,7 +109,7 @@
             </div>
             <div>
               <span class="font-bold block mb-1">Tamaño Letra:</span>
-              <input type="number" id="inputFontSize" value="40" min="20" max="85" oninput="regenerarGaleria()" class="w-full border rounded px-2 py-1 bg-white">
+              <input type="number" id="inputFontSize" value="42" min="20" max="85" oninput="regenerarGaleria()" class="w-full border rounded px-2 py-1 bg-white">
             </div>
             <div>
               <span class="font-bold block mb-1">Color Letra:</span>
@@ -229,8 +229,8 @@
 
   <script>
     const MOTIVOS = ['lila', 'amarillo', 'verde', 'rojo', 'azul'];
-    let plantillas = JSON.parse(localStorage.getItem('escarapelas_plantillas_v5')) || {};
-    let alumnos = JSON.parse(localStorage.getItem('escarapelas_alumnos_v5')) || [
+    let plantillas = JSON.parse(localStorage.getItem('escarapelas_plantillas_v6')) || {};
+    let alumnos = JSON.parse(localStorage.getItem('escarapelas_alumnos_v6')) || [
       { id: 1, nombre: 'MARIANA LAGUADO CÁCERES', motivo: 'rojo' },
       { id: 2, nombre: 'KELMER ANDREY', motivo: 'rojo' }
     ];
@@ -253,7 +253,7 @@
       reader.onload = function(e) {
         plantillas[motivo] = e.target.result;
         try {
-          localStorage.setItem('escarapelas_plantillas_v5', JSON.stringify(plantillas));
+          localStorage.setItem('escarapelas_plantillas_v6', JSON.stringify(plantillas));
         } catch (err) {}
         actualizarMiniaturasPlantillas();
         regenerarGaleria();
@@ -363,7 +363,6 @@
       return new Promise(resolve => {
         const ctx = canvasEl.getContext('2d');
         const posY = parseInt(document.getElementById('sliderY').value);
-        const posX = parseInt(document.getElementById('sliderX').value);
         const fontSize = parseInt(document.getElementById('inputFontSize').value);
         const colorTexto = document.getElementById('inputColor').value;
         const taparLinea = document.getElementById('checkTaparLinea').checked;
@@ -375,19 +374,19 @@
           const img = new Image();
           img.onload = () => {
             ctx.drawImage(img, 0, 0, canvasEl.width, canvasEl.height);
-            estamparTextoInteligente(ctx, canvasEl.width, alumno.nombre, posX, posY, fontSize, colorTexto, taparLinea);
+            estamparTextoInteligente(ctx, canvasEl.width, alumno.nombre, posY, fontSize, colorTexto, taparLinea);
             resolve();
           };
           img.src = imgSrc;
         } else {
           dibujarPlantillaDemo(ctx, canvasEl.width, canvasEl.height, alumno.motivo);
-          estamparTextoInteligente(ctx, canvasEl.width, alumno.nombre, posX, posY, fontSize, colorTexto, taparLinea);
+          estamparTextoInteligente(ctx, canvasEl.width, alumno.nombre, posY, fontSize, colorTexto, taparLinea);
           resolve();
         }
       });
     }
 
-    function estamparTextoInteligente(ctx, anchoCanvas, nombre, x, y, fontSize, color, taparLinea) {
+    function estamparTextoInteligente(ctx, anchoCanvas, nombre, y, fontSize, color, taparLinea) {
       ctx.save();
       ctx.font = `700 ${fontSize}px 'Fredoka', sans-serif`;
       
@@ -404,9 +403,10 @@
       }
 
       if (taparLinea) {
+        // Tapa exactamente desde la parte superior de la leyenda "NOMBRE:" hasta abajo de la línea
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.roundRect(110, y - (fontSize * 0.9), 680, lineas.length > 1 ? fontSize * 2.2 : fontSize * 1.5, 15);
+        ctx.roundRect(110, y - 55, 680, lineas.length > 1 ? 160 : 110, 15);
         ctx.fill();
       }
 
@@ -414,11 +414,11 @@
       ctx.textAlign = 'center';
 
       if (lineas.length === 1) {
-        ctx.fillText(lineas[0], anchoCanvas / 2, y, maxAncho);
+        ctx.fillText(lineas[0], anchoCanvas / 2, y + 15, maxAncho);
       } else {
-        // Dos renglones bien distribuidos
-        ctx.fillText(lineas[0], anchoCanvas / 2, y - (fontSize * 0.55), maxAncho);
-        ctx.fillText(lineas[1], anchoCanvas / 2, y + (fontSize * 0.65), maxAncho);
+        // Dos renglones bien distribuidos en el espacio de la caja blanca
+        ctx.fillText(lineas[0], anchoCanvas / 2, y - 5, maxAncho);
+        ctx.fillText(lineas[1], anchoCanvas / 2, y + 45, maxAncho);
       }
       ctx.restore();
     }
@@ -435,7 +435,6 @@
 
     async function regenerarGaleria() {
       document.getElementById('lblY').innerText = document.getElementById('sliderY').value;
-      document.getElementById('lblX').innerText = document.getElementById('sliderX').value;
       document.getElementById('contadorAlumnos').innerText = alumnos.length;
 
       const contenedor = document.getElementById('galeriaCaratulas');
@@ -514,7 +513,7 @@
     async function descargarTodoEnPDF() {
       if (alumnos.length === 0) return alert('Primero carga tu archivo de Excel.');
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [216, 330] }); // Oficio
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [216, 330] });
 
       const posiciones = [
         { x: 14, y: 15 },
@@ -537,7 +536,7 @@
     function limpiarLista() {
       if (!confirm('¿Deseas vaciar la lista?')) return;
       alumnos = [];
-      localStorage.removeItem('escarapelas_alumnos_v5');
+      localStorage.removeItem('escarapelas_alumnos_v6');
       regenerarGaleria();
     }
 
@@ -562,7 +561,7 @@
     }
 
     async function guardarListaLocalYRemota() {
-      localStorage.setItem('escarapelas_alumnos_v5', JSON.stringify(alumnos));
+      localStorage.setItem('escarapelas_alumnos_v6', JSON.stringify(alumnos));
       if (supabaseClient && alumnos.length > 0) {
         const registros = alumnos.map(a => ({ nombre: a.nombre, motivo: a.motivo }));
         await supabaseClient.from('estudiantes').insert(registros);
