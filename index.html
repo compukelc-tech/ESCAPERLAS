@@ -92,17 +92,17 @@
         <div class="bg-slate-50 p-3 rounded-xl border space-y-3 text-xs">
           <div class="flex justify-between items-center">
             <span class="font-bold text-purple-900 text-sm">🎯 Calibración del Nombre:</span>
-            <span class="text-slate-500 font-semibold">Caja blanca 100% limpia y centrada</span>
+            <span class="text-slate-500 font-semibold">Barra limpia y proporcionada</span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <span class="font-bold block">Altura Vertical (Y): <span id="lblY">630</span>px</span>
-              <input type="range" id="sliderY" min="500" max="750" value="630" oninput="regenerarGaleria()" class="w-full accent-purple-600">
+              <span class="font-bold block">Altura Vertical (Y): <span id="lblY">620</span>px</span>
+              <input type="range" id="sliderY" min="500" max="750" value="620" oninput="regenerarGaleria()" class="w-full accent-purple-600">
             </div>
             <div>
               <span class="font-bold block mb-1">Tamaño Letra:</span>
-              <input type="number" id="inputFontSize" value="42" min="20" max="85" oninput="regenerarGaleria()" class="w-full border rounded px-2 py-1 bg-white">
+              <input type="number" id="inputFontSize" value="40" min="20" max="85" oninput="regenerarGaleria()" class="w-full border rounded px-2 py-1 bg-white">
             </div>
             <div>
               <span class="font-bold block mb-1">Color Letra:</span>
@@ -222,8 +222,8 @@
 
   <script>
     const MOTIVOS = ['lila', 'amarillo', 'verde', 'rojo', 'azul'];
-    let plantillas = JSON.parse(localStorage.getItem('escarapelas_plantillas_v7')) || {};
-    let alumnos = JSON.parse(localStorage.getItem('escarapelas_alumnos_v7')) || [
+    let plantillas = JSON.parse(localStorage.getItem('escarapelas_plantillas_v8')) || {};
+    let alumnos = JSON.parse(localStorage.getItem('escarapelas_alumnos_v8')) || [
       { id: 1, nombre: 'MARIANA LAGUADO CÁCERES', motivo: 'rojo' },
       { id: 2, nombre: 'KELMER ANDREY', motivo: 'rojo' }
     ];
@@ -246,7 +246,7 @@
       reader.onload = function(e) {
         plantillas[motivo] = e.target.result;
         try {
-          localStorage.setItem('escarapelas_plantillas_v7', JSON.stringify(plantillas));
+          localStorage.setItem('escarapelas_plantillas_v8', JSON.stringify(plantillas));
         } catch (err) {}
         actualizarMiniaturasPlantillas();
         regenerarGaleria();
@@ -394,10 +394,13 @@
         lineas = [linea1, linea2];
       }
 
-      // LIMPIEZA TOTAL: Borra por completo toda la zona superior de la caja blanca (incluyendo la leyenda "NOMBRE:")
+      // BARRA BLANCA PROPORCIONADA: Un rectángulo horizontal limpio y elegante para el nombre
+      const altoBarra = lineas.length > 1 ? 140 : 90;
+      const posYBarra = y - (fontSize * 0.7);
+
       ctx.fillStyle = '#FFFFFF';
       ctx.beginPath();
-      ctx.roundRect(100, 480, 700, 280, 20);
+      ctx.roundRect(110, posYBarra, 680, altoBarra, 15);
       ctx.fill();
 
       ctx.fillStyle = color;
@@ -407,7 +410,7 @@
         ctx.fillText(lineas[0], anchoCanvas / 2, y, maxAncho);
       } else {
         // Dos renglones bien distribuidos
-        ctx.fillText(lineas[0], anchoCanvas / 2, y - (fontSize * 0.5), maxAncho);
+        ctx.fillText(lineas[0], anchoCanvas / 2, y - (fontSize * 0.35), maxAncho);
         ctx.fillText(lineas[1], anchoCanvas / 2, y + (fontSize * 0.65), maxAncho);
       }
       ctx.restore();
@@ -419,7 +422,7 @@
       ctx.fillRect(0, 0, w, h);
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
-      ctx.roundRect(100, 480, 700, 280, 20);
+      ctx.roundRect(110, 570, 680, 90, 15);
       ctx.fill();
     }
 
@@ -490,7 +493,7 @@
         const dataUrl = canvasEl.toDataURL('image/png');
         const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
         const nombreLimpio = alumnos[i].nombre.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '').replace(/\s+/g, '_');
-        carpeta.file(`${String(index + 1).padStart(2, '0')}_${nombreLimpio}.png`, base64Data, { base64: true }); // corregido index por i
+        carpeta.file(`${String(i + 1).padStart(2, '0')}_${nombreLimpio}.png`, base64Data, { base64: true });
       }
 
       const content = await zip.generateAsync({ type: "blob" });
@@ -526,7 +529,7 @@
     function limpiarLista() {
       if (!confirm('¿Deseas vaciar la lista?')) return;
       alumnos = [];
-      localStorage.removeItem('escarapelas_alumnos_v7');
+      localStorage.removeItem('escarapelas_alumnos_v8');
       regenerarGaleria();
     }
 
@@ -551,7 +554,7 @@
     }
 
     async function guardarListaLocalYRemota() {
-      localStorage.setItem('escarapelas_alumnos_v7', JSON.stringify(alumnos));
+      localStorage.setItem('escarapelas_alumnos_v8', JSON.stringify(alumnos));
       if (supabaseClient && alumnos.length > 0) {
         const registros = alumnos.map(a => ({ nombre: a.nombre, motivo: a.motivo }));
         await supabaseClient.from('estudiantes').insert(registros);
