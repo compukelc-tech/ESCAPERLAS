@@ -42,8 +42,8 @@
       </div>
     </div>
     <div class="flex items-center gap-2">
-      <button onclick="forzarActualizacionApp()" title="Haz clic para limpiar temporales y recargar la última versión" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-blue-300 px-3 py-2 rounded-lg text-xs font-bold transition shadow flex items-center gap-1">
-        🔄 <span id="lblVersionApp">v3.1</span>
+      <button onclick="forzarActualizacionApp()" title="Haz clic para limpiar temporales y recargar la última versión desde sw.js" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-blue-300 px-3 py-2 rounded-lg text-xs font-bold transition shadow flex items-center gap-1">
+        🔄 <span id="lblVersionApp">...</span>
       </button>
       <button onclick="abrirModalBD()" class="bg-blue-900/80 hover:bg-blue-800 border border-blue-400/40 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition shadow">
         🗄️ Base de Datos (Opcional)
@@ -308,11 +308,6 @@
   </div>
 
   <script>
-    // =========================================================================
-    // CONTROL MAESTRO DE VERSIÓN (Cambia este número para actualizar en todos los equipos)
-    // =========================================================================
-    const APP_VERSION = '3.1';
-
     const MOTIVOS = ['lila', 'amarillo', 'verde', 'rojo', 'azul', 'blanco'];
     let plantillas = JSON.parse(localStorage.getItem('escarapelas_plantillas_v8')) || {};
     let alumnos = JSON.parse(localStorage.getItem('escarapelas_alumnos_v8')) || [
@@ -320,46 +315,64 @@
       { id: 2, nombre: 'ALUMNO 2', motivo: 'rojo' }
     ];
     let supabaseClient = null;
+    let versionActualSW = 'v3.2';
 
     window.onload = async () => {
-      await verificarVersionYActualizar();
+      await sincronizarVersionDesdeSW();
       inicializarBD();
       actualizarMiniaturasPlantillas();
       cambiarModoAsignacion();
       regenerarGaleria();
+    };
+
+    // Lee automáticamente CACHE_NAME desde sw.js para que solo tengas que cambiarlo allá
+    async function sincronizarVersionDesdeSW() {
+      try {
+        const respuesta = await fetch(`sw.js?t=${Date.now()}`, { cache: 'no-store' });
+        const textoSW = await respuesta.text();
+        const coincidencia = textoSW.match(/CACHE_NAME\s*=\s*['"]([^'"]+)['"]/);
+
+        if (coincidencia && coincidencia[1]) {
+          const cacheNameCompleto = coincidencia[1]; // Ej: compukelc-escarapelas-v3.2
+          const partes = cacheNameCompleto.split('-');
+          const etiquetaVersion = partes[partes.length - 1]; // Extrae "v3.2" o lo que pongas al final
+          versionActualSW = etiquetaVersion;
+
+          const lbl = document.getElementById('lblVersionApp');
+          if (lbl) lbl.innerText = etiquetaVersion;
+
+          const cacheGuardado = localStorage.getItem('compukelc_cache_name');
+          if (cacheGuardado !== cacheNameCompleto) {
+            localStorage.setItem('compukelc_cache_name', cacheNameCompleto);
+            if ('caches' in window) {
+              const keys = await caches.keys();
+              await Promise.all(keys.map(k => caches.delete(k)));
+            }
+            if ('serviceWorker' in navigator) {
+              const registrations = await navigator.serviceWorker.getRegistrations();
+              for (let reg of registrations) {
+                await reg.unregister();
+              }
+            }
+            if (cacheGuardado) {
+              window.location.reload(true);
+              return;
+            }
+          }
+        }
+      } catch (err) {
+        const lbl = document.getElementById('lblVersionApp');
+        if (lbl) lbl.innerText = versionActualSW;
+      }
+
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register(`sw.js?v=${APP_VERSION}`).then(reg => {
+        navigator.serviceWorker.register(`sw.js?v=${versionActualSW}`).then(reg => {
           reg.update();
         }).catch(() => {});
       }
-    };
-
-    // Verifica si la versión cambió para purgar cachés automáticamente sin borrar datos útiles
-    async function verificarVersionYActualizar() {
-      const lbl = document.getElementById('lblVersionApp');
-      if (lbl) lbl.innerText = 'v' + APP_VERSION;
-
-      const versionGuardada = localStorage.getItem('compukelc_app_version');
-      if (versionGuardada !== APP_VERSION) {
-        localStorage.setItem('compukelc_app_version', APP_VERSION);
-        if ('caches' in window) {
-          const keys = await caches.keys();
-          await Promise.all(keys.map(k => caches.delete(k)));
-        }
-        if ('serviceWorker' in navigator) {
-          const registrations = await navigator.serviceWorker.getRegistrations();
-          for (let reg of registrations) {
-            await reg.unregister();
-          }
-        }
-        // Si ya existía una versión previa distinta, recarga limpio desde el servidor
-        if (versionGuardada) {
-          window.location.reload(true);
-        }
-      }
     }
 
-    // Botón manual en el encabezado para forzar actualización inmediata en cualquier momento
+    // Botón manual en el encabezado para forzar limpieza de temporales y recargar
     async function forzarActualizacionApp() {
       if ('caches' in window) {
         const keys = await caches.keys();
@@ -371,7 +384,7 @@
           await reg.unregister();
         }
       }
-      localStorage.setItem('compukelc_app_version', APP_VERSION);
+      localStorage.removeItem('compukelc_cache_name');
       window.location.reload(true);
     }
 
