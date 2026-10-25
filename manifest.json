@@ -1,7 +1,7 @@
 {
-  "name": "Generador de Escarapelas I.E. San Francisco de Sales",
-  "short_name": "Escarapelas 2027",
-  "description": "Generador masivo de carátulas desde Excel para Transición 2027 - compukelc",
+  "name": "Generador de Escarapelas COMPUKELC",
+  "short_name": "Escarapelas",
+  "description": "Generador masivo de carátulas desde Excel para escarapelas - compukelc",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
