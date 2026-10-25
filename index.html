@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generador Masivo de Escarapelas - compukelc</title>
+  <title>Generador de Escarapelas - compukelc</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#6b21a8">
+  <meta name="theme-color" content="#0f172a">
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- SheetJS para leer archivos de Excel (.xlsx, .xls) -->
@@ -16,7 +16,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Fuente infantil -->
+  <!-- Fuente -->
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Fredoka', sans-serif; }
@@ -24,17 +24,25 @@
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800 pb-12">
 
-  <!-- Encabezado -->
-  <header class="bg-purple-800 text-white p-4 shadow-md flex flex-wrap justify-between items-center gap-3">
-    <div class="flex items-center gap-3">
-      <span class="text-3xl">🪪</span>
-      <div>
-        <h1 class="text-xl font-bold leading-none">Generador de Escarapelas Transición 2027</h1>
-        <p class="text-xs text-purple-200">I.E. San Francisco de Sales | Desarrollado por compukelc</p>
+  <!-- Encabezado Corporativo compukelc -->
+  <header class="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white px-5 py-3.5 shadow-lg border-b-2 border-blue-500/40 flex flex-wrap justify-between items-center gap-4">
+    <div class="flex items-center gap-4">
+      <span class="text-5xl leading-none select-none drop-shadow">🪪</span>
+      <div class="flex items-center gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold tracking-wide leading-tight text-white">Generador de Escarapelas</h1>
+          <p class="text-xs text-blue-300 font-semibold tracking-wider">Sistema Corporativo | Desarrollado por compukelc</p>
+        </div>
+        <img 
+          src="compukelc.jpeg" 
+          onerror="if(this.src.endsWith('compukelc.jpeg')){this.src='CompuKelc.jpg';}else if(this.src.endsWith('CompuKelc.jpg')){this.src='compukelc.jpg';}else{this.style.display='none';}" 
+          alt="Logo compukelc" 
+          class="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-blue-400 shadow-md bg-slate-800"
+        >
       </div>
     </div>
     <div class="flex gap-2">
-      <button onclick="abrirModalBD()" class="bg-purple-950 hover:bg-black text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+      <button onclick="abrirModalBD()" class="bg-blue-900/80 hover:bg-blue-800 border border-blue-400/40 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition shadow">
         🗄️ Base de Datos (Opcional)
       </button>
     </div>
@@ -46,67 +54,141 @@
       
       <!-- PASO 1: SUBIR LAS IMÁGENES DE LAS CARÁTULAS -->
       <section class="lg:col-span-7 bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
-        <div>
-          <h2 class="text-lg font-bold text-purple-800">Paso 1: Sube la(s) imagen(es) de la carátula</h2>
-          <p class="text-xs text-slate-500">Sube las imágenes verticales (9x13 cm). Si subes una sola, se aplicará por defecto.</p>
+        <div class="flex flex-wrap justify-between items-start gap-2">
+          <div>
+            <h2 class="text-lg font-bold text-blue-950">Paso 1: Sube la(s) imagen(es) de la escarapela</h2>
+            <p class="text-xs text-slate-500">Sube las imágenes verticales (9x13 cm). Si subes una sola, se aplicará por defecto.</p>
+          </div>
+          <button onclick="limpiarPlantillas()" class="text-xs bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-200 transition">
+            🗑️ Limpiar escarapelas
+          </button>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          <label class="cursor-pointer border-2 border-dashed border-purple-400 rounded-xl p-2 text-center bg-purple-50 hover:bg-purple-100 transition flex flex-col items-center justify-center">
-            <span class="text-xs font-bold text-purple-800 mb-1">🧸 Lila</span>
-            <img id="thumb_lila" class="w-14 h-20 object-cover rounded border hidden mb-1">
-            <span id="status_lila" class="text-[10px] bg-purple-200 text-purple-900 px-2 py-0.5 rounded">Subir</span>
-            <input type="file" accept="image/*" onchange="cargarPlantilla(event, 'lila')" class="hidden">
-          </label>
-
-          <label class="cursor-pointer border-2 border-dashed border-amber-400 rounded-xl p-2 text-center bg-amber-50 hover:bg-amber-100 transition flex flex-col items-center justify-center">
-            <span class="text-xs font-bold text-amber-800 mb-1">🚀 Amarillo</span>
-            <img id="thumb_amarillo" class="w-14 h-20 object-cover rounded border hidden mb-1">
-            <span id="status_amarillo" class="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded">Subir</span>
-            <input type="file" accept="image/*" onchange="cargarPlantilla(event, 'amarillo')" class="hidden">
-          </label>
-
-          <label class="cursor-pointer border-2 border-dashed border-green-500 rounded-xl p-2 text-center bg-green-50 hover:bg-green-100 transition flex flex-col items-center justify-center">
-            <span class="text-xs font-bold text-green-800 mb-1">🦁 Verde</span>
-            <img id="thumb_verde" class="w-14 h-20 object-cover rounded border hidden mb-1">
-            <span id="status_verde" class="text-[10px] bg-green-200 text-green-900 px-2 py-0.5 rounded">Subir</span>
-            <input type="file" accept="image/*" onchange="cargarPlantilla(event, 'verde')" class="hidden">
-          </label>
-
-          <label class="cursor-pointer border-2 border-dashed border-red-400 rounded-xl p-2 text-center bg-red-50 hover:bg-red-100 transition flex flex-col items-center justify-center">
-            <span class="text-xs font-bold text-red-800 mb-1">🦖 Rojo</span>
-            <img id="thumb_rojo" class="w-14 h-20 object-cover rounded border hidden mb-1">
-            <span id="status_rojo" class="text-[10px] bg-red-200 text-red-900 px-2 py-0.5 rounded">Subir</span>
-            <input type="file" accept="image/*" onchange="cargarPlantilla(event, 'rojo')" class="hidden">
-          </label>
-
-          <label class="cursor-pointer border-2 border-dashed border-sky-400 rounded-xl p-2 text-center bg-sky-50 hover:bg-sky-100 transition flex flex-col items-center justify-center">
-            <span class="text-xs font-bold text-sky-800 mb-1">🐙 Azul</span>
-            <img id="thumb_azul" class="w-14 h-20 object-cover rounded border hidden mb-1">
-            <span id="status_azul" class="text-[10px] bg-sky-200 text-sky-900 px-2 py-0.5 rounded">Subir</span>
-            <input type="file" accept="image/*" onchange="cargarPlantilla(event, 'azul')" class="hidden">
-          </label>
-        </div>
-
-        <!-- Calibración y Opciones del Texto -->
-        <div class="bg-slate-50 p-3 rounded-xl border space-y-3 text-xs">
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-purple-900 text-sm">🎯 Calibración del Nombre:</span>
-            <span class="text-slate-500 font-semibold">Barra limpia y proporcionada</span>
+        <!-- 6 Colores sin iconos infantiles -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+          
+          <!-- Lila -->
+          <div class="relative">
+            <button id="btn_del_lila" onclick="eliminarPlantillaIndividual(event, 'lila')" title="Quitar escarapela Lila" class="hidden absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 text-[10px] font-bold flex items-center justify-center shadow z-10">✕</button>
+            <label class="cursor-pointer border-2 border-dashed border-purple-400 rounded-xl p-2 text-center bg-purple-50 hover:bg-purple-100 transition flex flex-col items-center justify-center h-full">
+              <span class="text-xs font-bold text-purple-900 mb-1">Lila</span>
+              <img id="thumb_lila" class="w-14 h-20 object-cover rounded border hidden mb-1">
+              <span id="status_lila" class="text-[10px] bg-purple-200 text-purple-900 px-2 py-0.5 rounded font-bold">Subir</span>
+              <input id="input_file_lila" type="file" accept="image/*" onchange="cargarPlantilla(event, 'lila')" class="hidden">
+            </label>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- Amarillo -->
+          <div class="relative">
+            <button id="btn_del_amarillo" onclick="eliminarPlantillaIndividual(event, 'amarillo')" title="Quitar escarapela Amarilla" class="hidden absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 text-[10px] font-bold flex items-center justify-center shadow z-10">✕</button>
+            <label class="cursor-pointer border-2 border-dashed border-amber-400 rounded-xl p-2 text-center bg-amber-50 hover:bg-amber-100 transition flex flex-col items-center justify-center h-full">
+              <span class="text-xs font-bold text-amber-900 mb-1">Amarillo</span>
+              <img id="thumb_amarillo" class="w-14 h-20 object-cover rounded border hidden mb-1">
+              <span id="status_amarillo" class="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded font-bold">Subir</span>
+              <input id="input_file_amarillo" type="file" accept="image/*" onchange="cargarPlantilla(event, 'amarillo')" class="hidden">
+            </label>
+          </div>
+
+          <!-- Verde -->
+          <div class="relative">
+            <button id="btn_del_verde" onclick="eliminarPlantillaIndividual(event, 'verde')" title="Quitar escarapela Verde" class="hidden absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 text-[10px] font-bold flex items-center justify-center shadow z-10">✕</button>
+            <label class="cursor-pointer border-2 border-dashed border-green-500 rounded-xl p-2 text-center bg-green-50 hover:bg-green-100 transition flex flex-col items-center justify-center h-full">
+              <span class="text-xs font-bold text-green-900 mb-1">Verde</span>
+              <img id="thumb_verde" class="w-14 h-20 object-cover rounded border hidden mb-1">
+              <span id="status_verde" class="text-[10px] bg-green-200 text-green-900 px-2 py-0.5 rounded font-bold">Subir</span>
+              <input id="input_file_verde" type="file" accept="image/*" onchange="cargarPlantilla(event, 'verde')" class="hidden">
+            </label>
+          </div>
+
+          <!-- Rojo -->
+          <div class="relative">
+            <button id="btn_del_rojo" onclick="eliminarPlantillaIndividual(event, 'rojo')" title="Quitar escarapela Roja" class="hidden absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 text-[10px] font-bold flex items-center justify-center shadow z-10">✕</button>
+            <label class="cursor-pointer border-2 border-dashed border-red-400 rounded-xl p-2 text-center bg-red-50 hover:bg-red-100 transition flex flex-col items-center justify-center h-full">
+              <span class="text-xs font-bold text-red-900 mb-1">Rojo</span>
+              <img id="thumb_rojo" class="w-14 h-20 object-cover rounded border hidden mb-1">
+              <span id="status_rojo" class="text-[10px] bg-red-200 text-red-900 px-2 py-0.5 rounded font-bold">Subir</span>
+              <input id="input_file_rojo" type="file" accept="image/*" onchange="cargarPlantilla(event, 'rojo')" class="hidden">
+            </label>
+          </div>
+
+          <!-- Azul -->
+          <div class="relative">
+            <button id="btn_del_azul" onclick="eliminarPlantillaIndividual(event, 'azul')" title="Quitar escarapela Azul" class="hidden absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 text-[10px] font-bold flex items-center justify-center shadow z-10">✕</button>
+            <label class="cursor-pointer border-2 border-dashed border-sky-400 rounded-xl p-2 text-center bg-sky-50 hover:bg-sky-100 transition flex flex-col items-center justify-center h-full">
+              <span class="text-xs font-bold text-sky-900 mb-1">Azul</span>
+              <img id="thumb_azul" class="w-14 h-20 object-cover rounded border hidden mb-1">
+              <span id="status_azul" class="text-[10px] bg-sky-200 text-sky-900 px-2 py-0.5 rounded font-bold">Subir</span>
+              <input id="input_file_azul" type="file" accept="image/*" onchange="cargarPlantilla(event, 'azul')" class="hidden">
+            </label>
+          </div>
+
+          <!-- Blanco -->
+          <div class="relative">
+            <button id="btn_del_blanco" onclick="eliminarPlantillaIndividual(event, 'blanco')" title="Quitar escarapela Blanca" class="hidden absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 text-[10px] font-bold flex items-center justify-center shadow z-10">✕</button>
+            <label class="cursor-pointer border-2 border-dashed border-slate-400 rounded-xl p-2 text-center bg-slate-50 hover:bg-slate-100 transition flex flex-col items-center justify-center h-full">
+              <span class="text-xs font-bold text-slate-800 mb-1">Blanco</span>
+              <img id="thumb_blanco" class="w-14 h-20 object-cover rounded border hidden mb-1">
+              <span id="status_blanco" class="text-[10px] bg-slate-200 text-slate-800 px-2 py-0.5 rounded font-bold">Subir</span>
+              <input id="input_file_blanco" type="file" accept="image/*" onchange="cargarPlantilla(event, 'blanco')" class="hidden">
+            </label>
+          </div>
+
+        </div>
+
+        <!-- Calibración y Opciones del Texto (Eje Y Completo, Eje X y Fondo) -->
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3 text-xs">
+          <div class="flex flex-wrap justify-between items-center gap-2">
+            <span class="font-bold text-blue-950 text-sm">🎯 Calibración de Posición y Texto:</span>
+            <label class="flex items-center gap-1.5 font-semibold text-slate-700 cursor-pointer">
+              <input type="checkbox" id="chkBarraBlanca" checked onchange="regenerarGaleria()" class="accent-blue-700 w-4 h-4">
+              Mostrar recuadro blanco detrás del nombre
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Control Eje Y -->
+            <div class="bg-white p-2.5 rounded-lg border border-slate-200">
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-bold text-slate-700">Posición Vertical (Eje Y):</span>
+                <div class="flex items-center gap-1">
+                  <input type="number" id="numY" min="50" max="1250" value="620" oninput="sincronizarEjeY('num')" class="w-16 border rounded px-1.5 py-0.5 text-center font-bold text-blue-900">
+                  <span class="text-slate-500">px</span>
+                </div>
+              </div>
+              <input type="range" id="sliderY" min="50" max="1250" value="620" oninput="sincronizarEjeY('slider')" class="w-full accent-blue-700 cursor-pointer">
+              <div class="flex justify-between text-[10px] text-slate-400">
+                <span>Arriba (50)</span>
+                <span>Centro (650)</span>
+                <span>Abajo (1250)</span>
+              </div>
+            </div>
+
+            <!-- Control Eje X -->
+            <div class="bg-white p-2.5 rounded-lg border border-slate-200">
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-bold text-slate-700">Posición Horizontal (Eje X):</span>
+                <div class="flex items-center gap-1">
+                  <input type="number" id="numX" min="100" max="800" value="450" oninput="sincronizarEjeX('num')" class="w-16 border rounded px-1.5 py-0.5 text-center font-bold text-blue-900">
+                  <span class="text-slate-500">px</span>
+                </div>
+              </div>
+              <input type="range" id="sliderX" min="100" max="800" value="450" oninput="sincronizarEjeX('slider')" class="w-full accent-blue-700 cursor-pointer">
+              <div class="flex justify-between text-[10px] text-slate-400">
+                <span>Izquierda (100)</span>
+                <span>Centro (450)</span>
+                <span>Derecha (800)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <div>
-              <span class="font-bold block">Altura Vertical (Y): <span id="lblY">620</span>px</span>
-              <input type="range" id="sliderY" min="500" max="750" value="620" oninput="regenerarGaleria()" class="w-full accent-purple-600">
+              <span class="font-bold block mb-1 text-slate-700">Tamaño Letra (px):</span>
+              <input type="number" id="inputFontSize" value="40" min="16" max="100" oninput="regenerarGaleria()" class="w-full border rounded px-2.5 py-1.5 bg-white font-bold">
             </div>
             <div>
-              <span class="font-bold block mb-1">Tamaño Letra:</span>
-              <input type="number" id="inputFontSize" value="40" min="20" max="85" oninput="regenerarGaleria()" class="w-full border rounded px-2 py-1 bg-white">
-            </div>
-            <div>
-              <span class="font-bold block mb-1">Color Letra:</span>
-              <input type="color" id="inputColor" value="#1e1b4b" oninput="regenerarGaleria()" class="w-full h-7 border rounded cursor-pointer">
+              <span class="font-bold block mb-1 text-slate-700">Color Letra:</span>
+              <input type="color" id="inputColor" value="#0f172a" oninput="regenerarGaleria()" class="w-full h-8 border rounded cursor-pointer bg-white p-0.5">
             </div>
           </div>
         </div>
@@ -117,32 +199,33 @@
         <div class="space-y-3">
           <div class="flex justify-between items-start">
             <div>
-              <h2 class="text-lg font-bold text-purple-800">Paso 2: Sube tu archivo de Excel</h2>
-              <p class="text-xs text-slate-500">Sube tu listado de alumnos (.xlsx / .csv).</p>
+              <h2 class="text-lg font-bold text-blue-950">Paso 2: Sube tu archivo de Excel</h2>
+              <p class="text-xs text-slate-500">Sube tu listado de participantes (.xlsx / .csv).</p>
             </div>
-            <button onclick="descargarPlantillaExcel()" class="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-2.5 py-1 rounded-lg border border-emerald-300">
+            <button onclick="descargarPlantillaExcel()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-lg border border-blue-200 transition">
               📥 Descargar Ejemplo
             </button>
           </div>
 
           <!-- Selector de Modo de Asignación de Colores -->
-          <div class="bg-purple-50 p-3 rounded-xl border border-purple-200 space-y-2 text-xs">
-            <span class="font-bold text-purple-900 block">🎨 ¿Cómo deseas aplicar los colores?</span>
-            <select id="selectModoAsignacion" onchange="cambiarModoAsignacion()" class="w-full border rounded p-1.5 bg-white font-bold text-purple-900">
-              <option value="todos_uno">Aplicar UN SOLO color a TODOS los niños</option>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2 text-xs">
+            <span class="font-bold text-blue-950 block">🎨 ¿Cómo deseas aplicar los colores?</span>
+            <select id="selectModoAsignacion" onchange="cambiarModoAsignacion()" class="w-full border rounded p-1.5 bg-white font-bold text-slate-800">
+              <option value="todos_uno">Aplicar UN SOLO color a TODOS</option>
               <option value="interpolar">Interpolar / Combinar los colores seleccionados</option>
               <option value="rotativo">Una de cada color (Rotativo completo)</option>
             </select>
 
-            <!-- Selector de Color Único -->
+            <!-- Selector de Color Único (Sin iconos ni nombres temáticos) -->
             <div id="contenedorUnicoColor" class="pt-1">
               <span class="font-semibold text-slate-700">Selecciona el color único:</span>
-              <select id="colorUnico" onchange="aplicarModoAsignacion()" class="w-full border rounded p-1 bg-white mt-1 font-bold">
-                <option value="rojo">🦖 Rojo (Dinosaurios)</option>
-                <option value="amarillo">🚀 Amarillo (Espacio)</option>
-                <option value="verde">🦁 Verde (Selva)</option>
-                <option value="lila">🧸 Lila (Escolar)</option>
-                <option value="azul">🐙 Azul (Mar)</option>
+              <select id="colorUnico" onchange="aplicarModoAsignacion()" class="w-full border rounded p-1.5 bg-white mt-1 font-bold text-slate-800">
+                <option value="lila">Lila</option>
+                <option value="amarillo">Amarillo</option>
+                <option value="verde">Verde</option>
+                <option value="rojo" selected>Rojo</option>
+                <option value="azul">Azul</option>
+                <option value="blanco">Blanco</option>
               </select>
             </div>
 
@@ -150,18 +233,19 @@
             <div id="contenedorInterpolar" class="pt-1 hidden">
               <span class="font-semibold text-slate-700 block mb-1">Selecciona cuáles colores deseas combinar:</span>
               <div class="flex flex-wrap gap-2 text-[11px] font-bold">
-                <label class="bg-white px-2 py-1 rounded border"><input type="checkbox" name="chkMotivo" value="rojo" checked onchange="aplicarModoAsignacion()"> Rojo</label>
-                <label class="bg-white px-2 py-1 rounded border"><input type="checkbox" name="chkMotivo" value="amarillo" checked onchange="aplicarModoAsignacion()"> Amarillo</label>
-                <label class="bg-white px-2 py-1 rounded border"><input type="checkbox" name="chkMotivo" value="verde" onchange="aplicarModoAsignacion()"> Verde</label>
-                <label class="bg-white px-2 py-1 rounded border"><input type="checkbox" name="chkMotivo" value="lila" onchange="aplicarModoAsignacion()"> Lila</label>
-                <label class="bg-white px-2 py-1 rounded border"><input type="checkbox" name="chkMotivo" value="azul" onchange="aplicarModoAsignacion()"> Azul</label>
+                <label class="bg-white px-2 py-1 rounded border cursor-pointer"><input type="checkbox" name="chkMotivo" value="lila" onchange="aplicarModoAsignacion()"> Lila</label>
+                <label class="bg-white px-2 py-1 rounded border cursor-pointer"><input type="checkbox" name="chkMotivo" value="amarillo" checked onchange="aplicarModoAsignacion()"> Amarillo</label>
+                <label class="bg-white px-2 py-1 rounded border cursor-pointer"><input type="checkbox" name="chkMotivo" value="verde" onchange="aplicarModoAsignacion()"> Verde</label>
+                <label class="bg-white px-2 py-1 rounded border cursor-pointer"><input type="checkbox" name="chkMotivo" value="rojo" checked onchange="aplicarModoAsignacion()"> Rojo</label>
+                <label class="bg-white px-2 py-1 rounded border cursor-pointer"><input type="checkbox" name="chkMotivo" value="azul" onchange="aplicarModoAsignacion()"> Azul</label>
+                <label class="bg-white px-2 py-1 rounded border cursor-pointer"><input type="checkbox" name="chkMotivo" value="blanco" onchange="aplicarModoAsignacion()"> Blanco</label>
               </div>
             </div>
           </div>
 
-          <label class="cursor-pointer border-2 border-dashed border-emerald-500 bg-emerald-50 hover:bg-emerald-100 transition rounded-xl p-4 flex flex-col items-center justify-center text-center">
+          <label class="cursor-pointer border-2 border-dashed border-blue-500 bg-blue-50/60 hover:bg-blue-100/70 transition rounded-xl p-4 flex flex-col items-center justify-center text-center">
             <span class="text-3xl mb-1">📊</span>
-            <span class="text-sm font-bold text-emerald-900">Seleccionar archivo de Excel con alumnos</span>
+            <span class="text-sm font-bold text-blue-950">Seleccionar archivo de Excel con listado</span>
             <input type="file" id="inputExcel" accept=".xlsx, .xls, .csv" onchange="procesarArchivoExcel(event)" class="hidden">
           </label>
         </div>
@@ -169,14 +253,14 @@
         <!-- Botones de Descarga Masiva -->
         <div class="space-y-2 pt-2 border-t">
           <div class="flex justify-between items-center text-xs text-slate-600 mb-1">
-            <span>Total niños cargados: <b id="contadorAlumnos" class="text-purple-800 text-sm">0</b></span>
-            <button onclick="limpiarLista()" class="text-red-500 hover:underline">Vaciar lista</button>
+            <span>Total registros cargados: <b id="contadorAlumnos" class="text-blue-900 text-sm">0</b></span>
+            <button onclick="limpiarLista()" class="text-red-600 font-bold hover:underline">Limpiar lista</button>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <button onclick="descargarTodoEnZIP()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs shadow flex items-center justify-center gap-1">
+            <button onclick="descargarTodoEnZIP()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs shadow flex items-center justify-center gap-1 transition">
               📦 Descargar .ZIP (Imágenes)
             </button>
-            <button onclick="descargarTodoEnPDF()" class="bg-purple-700 hover:bg-purple-800 text-white font-bold py-2.5 px-3 rounded-xl text-xs shadow flex items-center justify-center gap-1">
+            <button onclick="descargarTodoEnPDF()" class="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2.5 px-3 rounded-xl text-xs shadow flex items-center justify-center gap-1 transition">
               🖨️ Descargar Pliego PDF (Oficio)
             </button>
           </div>
@@ -189,8 +273,8 @@
     <section class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
       <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
         <div>
-          <h2 class="text-lg font-bold text-purple-800">Paso 3: Carátulas Generadas Individualmente</h2>
-          <p class="text-xs text-slate-500">Puedes cambiar el color de cualquier estudiante individualmente antes de descargar.</p>
+          <h2 class="text-lg font-bold text-blue-950">Paso 3: Escarapelas Generadas Individualmente</h2>
+          <p class="text-xs text-slate-500">Puedes cambiar el color de cualquier persona individualmente antes de descargar.</p>
         </div>
       </div>
 
@@ -201,8 +285,8 @@
 
   <!-- MODAL DE BASE DE DATOS -->
   <div id="modalBD" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-xl max-w-md w-full p-5 space-y-4">
-      <h3 class="text-lg font-bold text-purple-800">Respaldo en Base de Datos (Opcional)</h3>
+    <div class="bg-white rounded-xl max-w-md w-full p-5 space-y-4 shadow-xl border border-slate-200">
+      <h3 class="text-lg font-bold text-blue-950">Respaldo en Base de Datos (Opcional)</h3>
       <p class="text-xs text-slate-600">El programa funciona 100% directo con tu archivo de Excel.</p>
       <div class="space-y-2 text-xs">
         <label class="font-bold block">URL de Supabase:</label>
@@ -211,17 +295,17 @@
         <input type="password" id="supaKey" placeholder="eyJhbGciOiJIUzI1NiIsInR..." class="w-full border p-2 rounded">
       </div>
       <div class="flex justify-between items-center pt-2">
-        <button onclick="cargarDesdeSupabase()" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold">🔄 Traer de BD</button>
+        <button onclick="cargarDesdeSupabase()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold">🔄 Traer de BD</button>
         <div class="flex gap-2">
-          <button onclick="cerrarModalBD()" class="px-3 py-1.5 bg-slate-200 rounded-lg text-xs">Cerrar</button>
-          <button onclick="guardarConfigBD()" class="px-3 py-1.5 bg-purple-700 text-white font-bold rounded-lg text-xs">Guardar</button>
+          <button onclick="cerrarModalBD()" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 rounded-lg text-xs font-bold">Cerrar</button>
+          <button onclick="guardarConfigBD()" class="px-3 py-1.5 bg-blue-900 hover:bg-blue-950 text-white font-bold rounded-lg text-xs">Guardar</button>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    const MOTIVOS = ['lila', 'amarillo', 'verde', 'rojo', 'azul'];
+    const MOTIVOS = ['lila', 'amarillo', 'verde', 'rojo', 'azul', 'blanco'];
     let plantillas = JSON.parse(localStorage.getItem('escarapelas_plantillas_v8')) || {};
     let alumnos = JSON.parse(localStorage.getItem('escarapelas_alumnos_v8')) || [
       { id: 1, nombre: 'MARIANA LAGUADO CÁCERES', motivo: 'rojo' },
@@ -239,6 +323,34 @@
       }
     };
 
+    function sincronizarEjeY(origen) {
+      const slider = document.getElementById('sliderY');
+      const num = document.getElementById('numY');
+      if (origen === 'slider') {
+        num.value = slider.value;
+      } else {
+        let val = parseInt(num.value) || 620;
+        if (val < 50) val = 50;
+        if (val > 1250) val = 1250;
+        slider.value = val;
+      }
+      regenerarGaleria();
+    }
+
+    function sincronizarEjeX(origen) {
+      const slider = document.getElementById('sliderX');
+      const num = document.getElementById('numX');
+      if (origen === 'slider') {
+        num.value = slider.value;
+      } else {
+        let val = parseInt(num.value) || 450;
+        if (val < 100) val = 100;
+        if (val > 800) val = 800;
+        slider.value = val;
+      }
+      regenerarGaleria();
+    }
+
     function cargarPlantilla(event, motivo) {
       const file = event.target.files[0];
       if (!file) return;
@@ -254,14 +366,46 @@
       reader.readAsDataURL(file);
     }
 
+    function eliminarPlantillaIndividual(event, motivo) {
+      event.preventDefault();
+      event.stopPropagation();
+      delete plantillas[motivo];
+      try {
+        localStorage.setItem('escarapelas_plantillas_v8', JSON.stringify(plantillas));
+      } catch (err) {}
+      const inputEl = document.getElementById('input_file_' + motivo);
+      if (inputEl) inputEl.value = '';
+      actualizarMiniaturasPlantillas();
+      regenerarGaleria();
+    }
+
+    function limpiarPlantillas() {
+      if (!confirm('¿Deseas eliminar todas las imágenes de escarapelas cargadas?')) return;
+      plantillas = {};
+      localStorage.removeItem('escarapelas_plantillas_v8');
+      MOTIVOS.forEach(m => {
+        const inputEl = document.getElementById('input_file_' + m);
+        if (inputEl) inputEl.value = '';
+      });
+      actualizarMiniaturasPlantillas();
+      regenerarGaleria();
+    }
+
     function actualizarMiniaturasPlantillas() {
       MOTIVOS.forEach(m => {
         const imgEl = document.getElementById('thumb_' + m);
         const stEl = document.getElementById('status_' + m);
+        const btnDel = document.getElementById('btn_del_' + m);
         if (plantillas[m]) {
           imgEl.src = plantillas[m];
           imgEl.classList.remove('hidden');
           stEl.innerText = '✅ OK';
+          if (btnDel) btnDel.classList.remove('hidden');
+        } else {
+          imgEl.src = '';
+          imgEl.classList.add('hidden');
+          stEl.innerText = 'Subir';
+          if (btnDel) btnDel.classList.add('hidden');
         }
       });
     }
@@ -319,7 +463,7 @@
         filas.forEach((fila, idx) => {
           if (!fila || fila.length === 0) return;
           const textoCelda = String(fila[0] || '').trim();
-          if (!textoCelda || (idx === 0 && /^(nombre|estudiante|alumno|niño|nombres)$/i.test(textoCelda))) return;
+          if (!textoCelda || (idx === 0 && /^(nombre|estudiante|alumno|niño|nombres|participante)$/i.test(textoCelda))) return;
 
           nuevosAlumnos.push({
             id: Date.now() + idx,
@@ -342,22 +486,24 @@
 
     function descargarPlantillaExcel() {
       const ws = XLSX.utils.aoa_to_sheet([
-        ["NOMBRE DEL ESTUDIANTE"],
+        ["NOMBRE"],
         ["MARIANA LAGUADO CÁCERES"],
         ["KELMER ANDREY LAGUADO"],
         ["SALOMÉ PÉREZ GÓMEZ"]
       ]);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Estudiantes");
-      XLSX.writeFile(wb, "Plantilla_Estudiantes_Transicion.xlsx");
+      XLSX.utils.book_append_sheet(wb, ws, "Listado");
+      XLSX.writeFile(wb, "Plantilla_Escarapelas_compukelc.xlsx");
     }
 
     function dibujarEnCanvas(canvasEl, alumno) {
       return new Promise(resolve => {
         const ctx = canvasEl.getContext('2d');
-        const posY = parseInt(document.getElementById('sliderY').value);
-        const fontSize = parseInt(document.getElementById('inputFontSize').value);
+        const posY = parseInt(document.getElementById('sliderY').value) || 620;
+        const posX = parseInt(document.getElementById('sliderX').value) || 450;
+        const fontSize = parseInt(document.getElementById('inputFontSize').value) || 40;
         const colorTexto = document.getElementById('inputColor').value;
+        const mostrarBarra = document.getElementById('chkBarraBlanca').checked;
 
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
         const imgSrc = obtenerPlantillaDisponible(alumno.motivo);
@@ -366,19 +512,19 @@
           const img = new Image();
           img.onload = () => {
             ctx.drawImage(img, 0, 0, canvasEl.width, canvasEl.height);
-            estamparTextoInteligente(ctx, canvasEl.width, alumno.nombre, posY, fontSize, colorTexto);
+            estamparTextoInteligente(ctx, alumno.nombre, posX, posY, fontSize, colorTexto, mostrarBarra);
             resolve();
           };
           img.src = imgSrc;
         } else {
           dibujarPlantillaDemo(ctx, canvasEl.width, canvasEl.height, alumno.motivo);
-          estamparTextoInteligente(ctx, canvasEl.width, alumno.nombre, posY, fontSize, colorTexto);
+          estamparTextoInteligente(ctx, alumno.nombre, posX, posY, fontSize, colorTexto, mostrarBarra);
           resolve();
         }
       });
     }
 
-    function estamparTextoInteligente(ctx, anchoCanvas, nombre, y, fontSize, color) {
+    function estamparTextoInteligente(ctx, nombre, x, y, fontSize, color, mostrarBarra) {
       ctx.save();
       ctx.font = `700 ${fontSize}px 'Fredoka', sans-serif`;
       
@@ -394,40 +540,48 @@
         lineas = [linea1, linea2];
       }
 
-      // BARRA BLANCA PROPORCIONADA: Un rectángulo horizontal limpio y elegante para el nombre
-      const altoBarra = lineas.length > 1 ? 140 : 90;
-      const posYBarra = y - (fontSize * 0.7);
+      if (mostrarBarra) {
+        const anchoBarra = 680;
+        const altoBarra = lineas.length > 1 ? (fontSize * 3.1) : (fontSize * 2.1);
+        const posXBarra = x - (anchoBarra / 2);
+        const posYBarra = y - (fontSize * 1.15);
 
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath();
-      ctx.roundRect(110, posYBarra, 680, altoBarra, 15);
-      ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.roundRect(posXBarra, posYBarra, anchoBarra, altoBarra, 15);
+        ctx.fill();
+      }
 
       ctx.fillStyle = color;
       ctx.textAlign = 'center';
 
       if (lineas.length === 1) {
-        ctx.fillText(lineas[0], anchoCanvas / 2, y, maxAncho);
+        ctx.fillText(lineas[0], x, y, maxAncho);
       } else {
-        // Dos renglones bien distribuidos
-        ctx.fillText(lineas[0], anchoCanvas / 2, y - (fontSize * 0.35), maxAncho);
-        ctx.fillText(lineas[1], anchoCanvas / 2, y + (fontSize * 0.65), maxAncho);
+        ctx.fillText(lineas[0], x, y - (fontSize * 0.35), maxAncho);
+        ctx.fillText(lineas[1], x, y + (fontSize * 0.70), maxAncho);
       }
       ctx.restore();
     }
 
     function dibujarPlantillaDemo(ctx, w, h, motivo) {
-      const colores = { lila: '#d8b4fe', amarillo: '#fde047', verde: '#86efac', rojo: '#fca5a5', azul: '#7dd3fc' };
-      ctx.fillStyle = colores[motivo] || '#d8b4fe';
+      const colores = {
+        lila: '#d8b4fe',
+        amarillo: '#fde047',
+        verde: '#86efac',
+        rojo: '#fca5a5',
+        azul: '#7dd3fc',
+        blanco: '#f8fafc'
+      };
+      ctx.fillStyle = colores[motivo] || '#e2e8f0';
       ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.roundRect(110, 570, 680, 90, 15);
-      ctx.fill();
+
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 12;
+      ctx.strokeRect(6, 6, w - 12, h - 12);
     }
 
     async function regenerarGaleria() {
-      document.getElementById('lblY').innerText = document.getElementById('sliderY').value;
       document.getElementById('contadorAlumnos').innerText = alumnos.length;
 
       const contenedor = document.getElementById('galeriaCaratulas');
@@ -449,11 +603,11 @@
         controles.innerHTML = `
           <div class="flex justify-between items-center gap-1">
             <span class="font-bold text-slate-700 truncate" title="${al.nombre}">${i + 1}. ${al.nombre}</span>
-            <select onchange="cambiarMotivoIndividual(${i}, this.value)" class="border rounded px-1.5 py-0.5 bg-white text-[11px] font-bold uppercase">
+            <select onchange="cambiarMotivoIndividual(${i}, this.value)" class="border rounded px-1.5 py-0.5 bg-white text-[11px] font-bold uppercase text-blue-950">
               ${MOTIVOS.map(m => `<option value="${m}" ${al.motivo === m ? 'selected' : ''}>${m}</option>`).join('')}
             </select>
           </div>
-          <button onclick="descargarIndividual(${i})" class="w-full bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold py-1.5 rounded-lg transition">
+          <button onclick="descargarIndividual(${i})" class="w-full bg-blue-100 hover:bg-blue-200 text-blue-950 font-bold py-1.5 rounded-lg transition">
             ⬇️ Descargar PNG
           </button>
         `;
@@ -486,7 +640,7 @@
     async function descargarTodoEnZIP() {
       if (alumnos.length === 0) return alert('Primero carga tu archivo de Excel.');
       const zip = new JSZip();
-      const carpeta = zip.folder("Escarapelas_Transicion_2027");
+      const carpeta = zip.folder("Escarapelas_compukelc");
 
       for (let i = 0; i < alumnos.length; i++) {
         const canvasEl = document.getElementById(`canvas_alumno_${i}`);
@@ -499,7 +653,7 @@
       const content = await zip.generateAsync({ type: "blob" });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(content);
-      link.download = "Escarapelas_Transicion_2027_PNG.zip";
+      link.download = "Escarapelas_compukelc_PNG.zip";
       link.click();
     }
 
