@@ -1,8 +1,9 @@
-const CACHE_NAME = 'compukelc-escarapelas-v2';
+const CACHE_NAME = 'compukelc-escarapelas-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
+  './compukelc.jpeg',
   'https://cdn.tailwindcss.com',
   'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
