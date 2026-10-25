@@ -539,9 +539,9 @@
     function descargarPlantillaExcel() {
       const ws = XLSX.utils.aoa_to_sheet([
         ["NOMBRE"],
-        ["MARIANA LAGUADO CÁCERES"],
-        ["KELMER ANDREY LAGUADO"],
-        ["SALOMÉ PÉREZ GÓMEZ"]
+        ["ALUMNO 1"],
+        ["ALUMNO 2"],
+        ["ALUMNO 3"]
       ]);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Listado");
