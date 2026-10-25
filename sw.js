@@ -1,4 +1,4 @@
-const CACHE_NAME = 'compukelc-escarapelas-v3';
+const CACHE_NAME = 'compukelc-escarapelas-v3.1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -12,7 +12,7 @@ const ASSETS_TO_CACHE = [
   'https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap'
 ];
 
-// Instalar el Service Worker y guardar recursos en caché
+// Instalar el Service Worker y activar inmediatamente sin esperar
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
@@ -22,7 +22,7 @@ self.addEventListener('install', event => {
   );
 });
 
-// Limpiar cachés antiguos cuando actualices la versión
+// Limpiar cualquier caché de versiones anteriores automáticamente
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
@@ -34,11 +34,23 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Responder desde caché o buscar en internet
+// Estrategia Network First (Red Primero):
+// Intenta descargar siempre la versión más reciente del servidor y actualiza el caché.
+// Si no hay internet, responde con la copia guardada en caché.
 self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+
   event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      return cachedResponse || fetch(event.request);
-    })
+    fetch(event.request)
+      .then(networkResponse => {
+        const responseClone = networkResponse.clone();
+        caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, responseClone);
+        });
+        return networkResponse;
+      })
+      .catch(() => {
+        return caches.match(event.request);
+      })
   );
 });
